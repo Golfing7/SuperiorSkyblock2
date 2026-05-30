@@ -29,6 +29,11 @@ public class FileClassLoader extends URLClassLoader {
     public FileClassLoader(File file, ClassLoader pluginClassLoader, @Nullable ClassProcessor classProcessor) throws IOException {
         super(new URL[]{file.toURI().toURL()}, pluginClassLoader);
 
+        if (pluginClassLoader instanceof URLClassLoader) {
+            UrlClassLoaderAccess access = UrlClassLoaderAccess.create((URLClassLoader) pluginClassLoader);
+            access.addURL(file.toURI().toURL());
+        }
+
         this.jar = new JarFile(file);
         this.manifest = jar.getManifest();
         this.url = file.toURI().toURL();
