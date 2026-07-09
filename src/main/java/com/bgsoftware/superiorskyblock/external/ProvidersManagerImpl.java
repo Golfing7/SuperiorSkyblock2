@@ -617,6 +617,10 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
             Optional<EntitiesProvider> entitiesProvider = createInstance("entities.EntitiesProvider_RoseStacker");
             entitiesProvider.ifPresent(this::addEntitiesProvider);
         }
+        if (canRegisterHook("DecypherCore")) {
+            Optional<EntitiesProvider> entitiesProvider = createInstance("entities.EntitiesProvider_DecypherCore");
+            entitiesProvider.ifPresent(this::addEntitiesProvider);
+        }
     }
 
     private void registerPermissionsProvider() {

@@ -28,7 +28,7 @@ public class SpawnersProvider_DecypherCore implements SpawnersProvider_AutoDetec
     public SpawnersProvider_DecypherCore(SuperiorSkyblockPlugin plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(new StackerListener(), plugin);
-        Log.info("Using RoseStacker as a spawners provider.");
+        Log.info("Using DecypherCore as a spawners provider.");
     }
 
     @Override

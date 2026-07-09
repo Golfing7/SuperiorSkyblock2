@@ -26,6 +26,7 @@ class-depends:
   - ProtocolLib
   - PvpingSpawners
   - RoseStacker
+  - DecypherCore
   - ShopGUIPlus
   - SilkSpawners
   - SkinsRestorer
