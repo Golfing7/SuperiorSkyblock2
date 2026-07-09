@@ -1,0 +1,23 @@
+group 'Hooks:DecypherCore'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+repositories {
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly 'com.golfing8:DecypherCore:1.0'
+    compileOnly "org.spigotmc:v1_8_R3-Taco:latest"
+    compileOnly project(":API")
+    compileOnly project(":")
+}
+
+if (project.hasProperty('hook.compile_decyphercore') &&
+        !Boolean.valueOf(project.findProperty("hook.compile_decyphercore").toString())) {
+    project.tasks.all { task -> task.enabled = false }
+}

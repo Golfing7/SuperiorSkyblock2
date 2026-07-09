@@ -579,6 +579,10 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
                 spawnersProvider = createInstance("spawners.SpawnersProvider_RoseStacker");
             }
             listenToSpawnerChanges = false;
+        } else if (canRegisterHook("DecypherCore") &&
+                (auto || configSpawnersProvider.equalsIgnoreCase("DecypherCore"))) {
+            spawnersProvider = createInstance("spawners.SpawnersProvider_DecypherCore");
+            listenToSpawnerChanges = false;
         }
 
         spawnersProvider.ifPresent(this::setSpawnersProvider);
