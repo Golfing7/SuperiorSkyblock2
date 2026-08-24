@@ -29,7 +29,7 @@ public class TopIslandsPagedObjectButton extends AbstractPagedMenuButton<MenuTop
     @Override
     public void onButtonClick(InventoryClickEvent clickEvent) {
         TopIslandsSelfIslandButton.onButtonClick(clickEvent, menuView, pagedObject, getTemplate().islandSound, getTemplate().islandCommands,
-                getTemplate().noIslandSound, getTemplate().noIslandCommands);
+                getTemplate().noIslandSound, getTemplate().noIslandCommands, getTemplate().openWarpMenu);
     }
 
     @Override
@@ -46,6 +46,7 @@ public class TopIslandsPagedObjectButton extends AbstractPagedMenuButton<MenuTop
         private TemplateItem noIslandItem;
         private GameSound noIslandSound;
         private List<String> noIslandCommands;
+        private boolean openWarpMenu;
 
         public void setIslandItem(TemplateItem islandItem) {
             this.buttonItem = islandItem;
@@ -71,10 +72,14 @@ public class TopIslandsPagedObjectButton extends AbstractPagedMenuButton<MenuTop
             this.noIslandCommands = noIslandCommands;
         }
 
+        public void setOpenWarpMenu(boolean openWarpMenu) {
+            this.openWarpMenu = openWarpMenu;
+        }
+
         @Override
         public PagedMenuTemplateButton<MenuTopIslands.View, Island> build() {
             return new Template(requiredPermission, lackPermissionSound, buttonItem,
-                    clickSound, commands, noIslandItem, noIslandSound, noIslandCommands, getButtonIndex());
+                    clickSound, commands, noIslandItem, noIslandSound, noIslandCommands, getButtonIndex(), openWarpMenu);
         }
 
     }
@@ -86,10 +91,11 @@ public class TopIslandsPagedObjectButton extends AbstractPagedMenuButton<MenuTop
         private final GameSound noIslandSound;
         private final List<String> islandCommands;
         private final List<String> noIslandCommands;
+        private final boolean openWarpMenu;
 
         Template(String requiredPermission, GameSound lackPermissionSound,
                  TemplateItem islandItem, GameSound islandSound, List<String> islandCommands,
-                 TemplateItem noIslandItem, GameSound noIslandSound, List<String> noIslandCommands, int buttonIndex) {
+                 TemplateItem noIslandItem, GameSound noIslandSound, List<String> noIslandCommands, int buttonIndex, boolean openWarpMenu) {
             super(null, null, null, requiredPermission, lackPermissionSound, noIslandItem,
                     buttonIndex, TopIslandsPagedObjectButton.class, TopIslandsPagedObjectButton::new);
             this.islandItem = islandItem;
@@ -97,6 +103,7 @@ public class TopIslandsPagedObjectButton extends AbstractPagedMenuButton<MenuTop
             this.islandCommands = islandCommands == null ? Collections.emptyList() : islandCommands;
             this.noIslandSound = noIslandSound;
             this.noIslandCommands = noIslandCommands == null ? Collections.emptyList() : noIslandCommands;
+            this.openWarpMenu = openWarpMenu;
             if (this.getNullTemplateItem() != null)
                 this.getNullTemplateItem().getEditableBuilder().asSkullOf((SuperiorPlayer) null);
         }

@@ -25,6 +25,7 @@ public abstract class Mission<V> {
     private final Map<SuperiorPlayer, V> missionData = new ConcurrentHashMap<>();
 
     private String name = null;
+    private String displayName = null;
     private MissionCategory missionCategory = null;
     private Consumer<V> clearMethod = null;
     private boolean onlyShowIfRequiredCompleted = false;
@@ -46,6 +47,24 @@ public abstract class Mission<V> {
         Preconditions.checkNotNull(name, "name parameter cannot be null.");
         if (this.name == null)
             this.name = name;
+    }
+
+    /**
+     * Get the display name of the mission.
+     */
+    public String getDisplayName() {
+        return displayName != null ? displayName : name;
+    }
+
+    /**
+     * Sets the display name of the mission.
+     *
+     * @param displayName The display name to set.
+     */
+    public void setDisplayName(String displayName) {
+        Preconditions.checkNotNull(displayName, "displayName parameter cannot be null.");
+        if (this.displayName == null)
+            this.displayName = displayName;
     }
 
     /**

@@ -193,6 +193,22 @@ public interface SuperiorPlayer extends IMissionsHolder, IPersistentDataHolder, 
      */
     HitActionResult canHit(SuperiorPlayer otherPlayer);
 
+    /**
+     * Checks if the player has a cooldown for a specific message.
+     *
+     * @param message the message
+     * @return true if the player has a cooldown for the message, false otherwise
+     */
+    boolean hasMessageCooldown(Object message);
+
+    /**
+     * Sets a cooldown for a specific message for the player.
+     *
+     * @param message the message
+     * @param durationMs the duration of the cooldown in milliseconds
+     */
+    void setMessageCooldown(Object message, long durationMs);
+
     /*
      *   Location Methods
      */

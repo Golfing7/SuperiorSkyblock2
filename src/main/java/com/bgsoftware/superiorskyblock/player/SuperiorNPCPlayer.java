@@ -180,6 +180,16 @@ public class SuperiorNPCPlayer implements SuperiorPlayer, ObjectsPool.Releasable
     }
 
     @Override
+    public boolean hasMessageCooldown(Object message) {
+        return false;
+    }
+
+    @Override
+    public void setMessageCooldown(Object message, long durationMs) {
+
+    }
+
+    @Override
     public World getWorld() {
         return npc.getWorld();
     }

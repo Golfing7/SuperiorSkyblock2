@@ -74,7 +74,7 @@ public class CmdMission implements ISuperiorCommand {
             requiredMissions.forEach(requiredMission -> {
                 Mission<?> _mission = plugin.getMissions().getMission(requiredMission);
                 if (_mission != null && plugin.getMissions().canCompleteAgain(superiorPlayer, _mission))
-                    stringBuilder.append(_mission.getName()).append(", ");
+                    stringBuilder.append(_mission.getDisplayName()).append(", ");
             });
             if (stringBuilder.length() != 0) {
                 Message.MISSION_NOT_COMPLETE_REQUIRED_MISSIONS.send(superiorPlayer, stringBuilder.substring(0, stringBuilder.length() - 2));

@@ -158,6 +158,16 @@ public class DelegateSuperiorPlayer implements SuperiorPlayer {
         return this.handle.canHit(otherPlayer);
     }
 
+    @Override
+    public boolean hasMessageCooldown(Object message) {
+        return this.handle.hasMessageCooldown(message);
+    }
+
+    @Override
+    public void setMessageCooldown(Object message, long durationMs) {
+        this.handle.setMessageCooldown(message, durationMs);
+    }
+
     @Nullable
     @Override
     public World getWorld() {

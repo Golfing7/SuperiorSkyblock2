@@ -303,7 +303,10 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
 
                 if (!shouldAutoReward) {
                     if (canCompleteAgain(superiorPlayer, mission)) {
-                        Message.MISSION_NO_AUTO_REWARD.send(superiorPlayer, mission.getName());
+                        if (!superiorPlayer.hasMessageCooldown(Message.MISSION_NO_AUTO_REWARD)) {
+                            Message.MISSION_NO_AUTO_REWARD.send(superiorPlayer, mission.getDisplayName());
+                            superiorPlayer.setMessageCooldown(Message.MISSION_NO_AUTO_REWARD, 300_000L); // 5 minutes
+                        }
                         return false;
                     }
                 }
@@ -570,10 +573,11 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
                 boolean islandMission = missionSection.getBoolean("island", false);
                 List<String> requiredMissions = missionSection.getStringList("required-missions");
                 List<String> requiredChecks = missionSection.getStringList("required-checks");
+                String displayName = missionSection.getString("display-name", missionName);
 
                 boolean onlyShowIfRequiredCompleted = missionSection.getBoolean("only-show-if-required-completed", false);
 
-                mission = createInstance(missionClass, missionName, islandMission, requiredMissions, requiredChecks, onlyShowIfRequiredCompleted);
+                mission = createInstance(missionClass, missionName, displayName, islandMission, requiredMissions, requiredChecks, onlyShowIfRequiredCompleted);
                 mission.load(plugin, missionSection);
                 this.missionsContainer.addMission(mission);
                 newMission = mission;
@@ -598,7 +602,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         return missionDataOptional.isPresent() && missionDataOptional.get().isAutoReward();
     }
 
-    private Mission<?> createInstance(Class<?> clazz, String name, boolean islandMission, List<String> requiredMissions, List<String> requiredChecks, boolean onlyShowIfRequiredCompleted) throws Exception {
+    private Mission<?> createInstance(Class<?> clazz, String name, String displayName, boolean islandMission, List<String> requiredMissions, List<String> requiredChecks, boolean onlyShowIfRequiredCompleted) throws Exception {
         Preconditions.checkArgument(Mission.class.isAssignableFrom(clazz), "Class " + clazz + " is not a Mission.");
 
         for (Constructor<?> constructor : clazz.getConstructors()) {

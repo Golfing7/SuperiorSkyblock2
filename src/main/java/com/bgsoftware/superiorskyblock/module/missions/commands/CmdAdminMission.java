@@ -72,7 +72,7 @@ public class CmdAdminMission implements IAdminPlayerCommand {
         if (args[3].equalsIgnoreCase("complete")) {
             missions.forEach(mission -> plugin.getMissions().rewardMission(mission, targetPlayer, false, true));
             if (missions.size() == 1)
-                Message.MISSION_STATUS_COMPLETE.send(sender, missions.get(0).getName(), targetPlayer.getName());
+                Message.MISSION_STATUS_COMPLETE.send(sender, missions.get(0).getDisplayName(), targetPlayer.getName());
             else
                 Message.MISSION_STATUS_COMPLETE_ALL.send(sender, targetPlayer.getName());
             return;
@@ -93,7 +93,7 @@ public class CmdAdminMission implements IAdminPlayerCommand {
                 return;
 
             if (missions.size() == 1)
-                Message.MISSION_STATUS_RESET.send(sender, missions.get(0).getName(), targetPlayer.getName());
+                Message.MISSION_STATUS_RESET.send(sender, missions.get(0).getDisplayName(), targetPlayer.getName());
             else
                 Message.MISSION_STATUS_RESET_ALL.send(sender, targetPlayer.getName());
             return;

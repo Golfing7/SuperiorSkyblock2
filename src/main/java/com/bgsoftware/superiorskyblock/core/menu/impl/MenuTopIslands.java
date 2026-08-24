@@ -129,6 +129,7 @@ public class MenuTopIslands extends AbstractPagedMenu<MenuTopIslands.View, MenuT
                 slotsBuilder.setNoIslandSound(MenuParserImpl.getInstance().getSound(cfg.getConfigurationSection("sounds." + slotsChar + ".no-island")));
                 slotsBuilder.setIslandCommands(cfg.getStringList("commands." + slotsChar + ".island"));
                 slotsBuilder.setNoIslandCommands(cfg.getStringList("commands." + slotsChar + ".no-island"));
+                slotsBuilder.setOpenWarpMenu(cfg.getBoolean("open-warp-menu", false));
 
                 patternBuilder.mapButtons(menuPatternSlots.getSlots(slotsChar), slotsBuilder);
 
@@ -142,6 +143,7 @@ public class MenuTopIslands extends AbstractPagedMenu<MenuTopIslands.View, MenuT
                     selfIslandBuilder.setNoIslandSound(MenuParserImpl.getInstance().getSound(cfg.getConfigurationSection("sounds." + slotsChar + ".no-island")));
                     selfIslandBuilder.setIslandCommands(cfg.getStringList("commands." + slotsChar + ".island"));
                     selfIslandBuilder.setNoIslandCommands(cfg.getStringList("commands." + slotsChar + ".no-island"));
+                    selfIslandBuilder.setOpenWarpMenu(cfg.getBoolean("open-warp-menu", false));
 
                     patternBuilder.mapButtons(MenuParserImpl.getInstance().parseButtonSlots(cfg, "player-island", menuPatternSlots),
                             selfIslandBuilder);

@@ -57,13 +57,13 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
     @Override
     public void onButtonClick(InventoryClickEvent clickEvent) {
         onButtonClick(clickEvent, menuView, menuView.getInventoryViewer().getIsland(), getTemplate().islandSound,
-                getTemplate().islandCommands, getTemplate().noIslandSound, getTemplate().noIslandCommands);
+                getTemplate().islandCommands, getTemplate().noIslandSound, getTemplate().noIslandCommands, getTemplate().openWarpMenu);
     }
 
     public static void onButtonClick(InventoryClickEvent clickEvent, MenuTopIslands.View menuView,
                                      @Nullable Island island, @Nullable GameSound islandSound,
                                      List<String> islandCommands, @Nullable GameSound noIslandSound,
-                                     List<String> noIslandCommands) {
+                                     List<String> noIslandCommands, boolean openWarpMenu) {
         Player player = (Player) clickEvent.getWhoClicked();
 
         if (island != null) {
@@ -84,7 +84,7 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
             if (clickEvent.getClick().isRightClick()) {
                 if (Menus.MENU_GLOBAL_WARPS.isVisitorWarps()) {
                     plugin.getCommands().dispatchSubCommand(player, "visit", island.getOwner().getName());
-                } else {
+                } else if (openWarpMenu) {
                     plugin.getProviders().getMenusProvider().openWarpCategories(
                             menuView.getInventoryViewer(), MenuViewWrapper.fromView(menuView), island);
                 }
@@ -181,6 +181,7 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
         private TemplateItem noIslandItem;
         private GameSound noIslandSound;
         private List<String> noIslandCommands;
+        private boolean openWarpMenu;
 
         public void setIslandItem(TemplateItem islandItem) {
             this.buttonItem = islandItem;
@@ -206,10 +207,14 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
             this.noIslandCommands = noIslandCommands;
         }
 
+        public void setOpenWarpMenu(boolean openWarpMenu) {
+            this.openWarpMenu = openWarpMenu;
+        }
+
         @Override
         public MenuTemplateButton<MenuTopIslands.View> build() {
             return new Template(requiredPermission, lackPermissionSound, buttonItem,
-                    clickSound, commands, noIslandItem, noIslandSound, noIslandCommands);
+                    clickSound, commands, noIslandItem, noIslandSound, noIslandCommands, openWarpMenu);
         }
 
     }
@@ -224,11 +229,12 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
         private final GameSound noIslandSound;
         private final List<String> islandCommands;
         private final List<String> noIslandCommands;
+        private final boolean openWarpMenu;
 
         Template(@Nullable String requiredPermission, @Nullable GameSound lackPermissionSound,
                  @Nullable TemplateItem islandItem, @Nullable GameSound islandSound, @Nullable List<String> islandCommands,
                  @Nullable TemplateItem noIslandItem, @Nullable GameSound noIslandSound,
-                 @Nullable List<String> noIslandCommands) {
+                 @Nullable List<String> noIslandCommands, boolean openWarpMenu) {
             super(null, null, null, requiredPermission, lackPermissionSound,
                     TopIslandsSelfIslandButton.class, TopIslandsSelfIslandButton::new);
             this.islandItem = islandItem == null ? TemplateItem.AIR : islandItem;
@@ -237,6 +243,7 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
             this.islandCommands = islandCommands == null ? Collections.emptyList() : islandCommands;
             this.noIslandSound = noIslandSound;
             this.noIslandCommands = noIslandCommands == null ? Collections.emptyList() : noIslandCommands;
+            this.openWarpMenu = openWarpMenu;
             if (noIslandItem != null)
                 noIslandItem.getEditableBuilder().asSkullOf((SuperiorPlayer) null);
         }

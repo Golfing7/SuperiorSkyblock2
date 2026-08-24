@@ -384,6 +384,7 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
         Resources.copyResource("modules/missions/CraftingMissions");
         Resources.copyResource("modules/missions/EnchantingMissions");
         Resources.copyResource("modules/missions/FarmingMissions");
+        Resources.copyResource("modules/missions/FarmHarvestingMissions");
         Resources.copyResource("modules/missions/FishingMissions");
         Resources.copyResource("modules/missions/IslandMissions");
         Resources.copyResource("modules/missions/ItemsMissions");
