@@ -289,3 +289,45 @@ upgrades:
         MINECART: 32
       commands:
         - 'island admin msg %player% &e&lSuperiorSkyblock &7You have reached the maximum upgrade for minecarts limit.'
+  chest-upgrade:
+    '1':
+      price: 50000.0
+      price-type: "Money"
+      chest-rows: 1
+      commands:
+        - 'island admin setupgrade %player% chest-upgrade 2'
+        - 'island admin msgall %player% &e&lSuperiorSkyblock &7Your island chest now has 1 row!'
+    '2':
+      price: 100000.0
+      price-type: "Money"
+      chest-rows: 2
+      commands:
+        - 'island admin setupgrade %player% chest-upgrade 3'
+        - 'island admin msgall %player% &e&lSuperiorSkyblock &7Your island chest now has 2 rows!'
+    '3':
+      price: 200000.0
+      price-type: "Money"
+      chest-rows: 3
+      commands:
+        - 'island admin setupgrade %player% chest-upgrade 4'
+        - 'island admin msgall %player% &e&lSuperiorSkyblock &7Your island chest now has 3 rows!'
+    '4':
+      price: 400000.0
+      price-type: "Money"
+      chest-rows: 4
+      commands:
+        - 'island admin setupgrade %player% chest-upgrade 5'
+        - 'island admin msgall %player% &e&lSuperiorSkyblock &7Your island chest now has 4 rows!'
+    '5':
+      price: 800000.0
+      price-type: "Money"
+      chest-rows: 5
+      commands:
+        - 'island admin setupgrade %player% chest-upgrade 6'
+        - 'island admin msgall %player% &e&lSuperiorSkyblock &7Your island chest now has 5 rows!'
+    '6':
+      price: 0.0
+      price-type: "Money"
+      chest-rows: 6
+      commands:
+        - 'island admin msg %player% &e&lSuperiorSkyblock &7You have reached the maximum upgrade for the island chest (6 rows).'

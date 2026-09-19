@@ -140,6 +140,26 @@ public class GlobalSection extends SettingsContainerHolder {
         return getContainer().spawnersProvider;
     }
 
+    public boolean isSpawnerWorthScaledByLevel() {
+        return getContainer().spawnerWorthScaledByLevel;
+    }
+
+    public int getSpawnerWorthResyncIntervalSeconds() {
+        return getContainer().spawnerWorthResyncIntervalSeconds;
+    }
+
+    public int getSpawnerWorthResyncBatchSize() {
+        return getContainer().spawnerWorthResyncBatchSize;
+    }
+
+    public String getOwnIslandNameColor() {
+        return getContainer().ownIslandNameColor;
+    }
+
+    public String getOtherIslandNameColor() {
+        return getContainer().otherIslandNameColor;
+    }
+
     public String getStackedBlocksProvider() {
         return getContainer().stackedBlocksProvider;
     }

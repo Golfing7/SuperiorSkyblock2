@@ -25,4 +25,27 @@ public interface SpawnersProvider {
     @Nullable
     String getSpawnerType(ItemStack itemStack);
 
+    /**
+     * Get the upgrade level of the spawner at the given location, if the provider supports leveled spawners.
+     * Used to optionally scale a spawner's contribution to island worth by its level
+     * (see {@code spawners-worth-scaled-by-level} in the config).
+     *
+     * @param location The location to check.
+     * @return the spawner's level, or -1 if this provider doesn't support leveled spawners
+     * or there's no spawner at the location.
+     */
+    default int getSpawnerLevel(Location location) {
+        return -1;
+    }
+
+    /**
+     * Get the maximum possible upgrade level for the spawner at the given location.
+     *
+     * @param location The location to check.
+     * @return the maximum level, or -1 if this provider doesn't support leveled spawners.
+     */
+    default int getMaxSpawnerLevel(Location location) {
+        return -1;
+    }
+
 }

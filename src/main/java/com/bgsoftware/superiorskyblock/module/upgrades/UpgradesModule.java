@@ -272,6 +272,13 @@ public class UpgradesModule extends BuiltinModule<UpgradesModule.Configuration> 
             return;
         }
 
+        Value<OptionalInt> chestRows = Value.syncedFixed(readInt(levelSection, "chest-rows"));
+
+        if (chestRows.get().orElse(0) > 6) {
+            this.logger().w("Upgrade by name " + upgrade.getName() + " (level " + level + ") has illegal chest-rows (max 6), skipping...");
+            return;
+        }
+
         Value<Optional<BigDecimal>> bankLimit = Value.syncedFixed(readString(levelSection, "bank-limit").map(BigDecimal::new));
         KeyMap<Integer> blockLimits = KeyMaps.createArrayMap(KeyIndicator.MATERIAL);
         if (levelSection.isConfigurationSection("block-limits")) {
@@ -322,7 +329,7 @@ public class UpgradesModule extends BuiltinModule<UpgradesModule.Configuration> 
         SUpgradeLevel upgradeLevel = new SUpgradeLevel(level, upgradeCost, commands, permission, requirements,
                 cropGrowth, spawnerRates, mobDrops, teamLimit, warpsLimit, coopLimit, borderSize,
                 Value.syncedFixed(blockLimits), Value.syncedFixed(entityLimits), Value.syncedFixed(generatorRates),
-                Value.syncedFixed(islandEffects), bankLimit, Value.syncedFixed(rolesLimits));
+                Value.syncedFixed(islandEffects), bankLimit, Value.syncedFixed(rolesLimits), chestRows);
 
         upgrade.addUpgradeLevel(level, upgradeLevel);
     }

@@ -6,6 +6,7 @@ import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.service.placeholders.PlaceholdersServiceImpl;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -26,7 +27,7 @@ public class PlaceholdersProvider_PlaceholderAPI implements PlaceholdersProvider
         return PlaceholderAPI.setPlaceholders(offlinePlayer, value);
     }
 
-    private class EZPlaceholder extends PlaceholderExpansion {
+    private class EZPlaceholder extends PlaceholderExpansion implements Relational {
 
         private final PlaceholdersServiceImpl placeholdersService;
 
@@ -62,6 +63,17 @@ public class PlaceholdersProvider_PlaceholderAPI implements PlaceholdersProvider
         @Override
         public String onPlaceholderRequest(Player player, String placeholder) {
             return onRequest(player, placeholder);
+        }
+
+        /**
+         * PlaceholderAPI's relational hook, used for e.g. {@code %rel_superior_name_colored%}.
+         * PAPI/consumers (e.g. TAB) call {@code setRelationalPlaceholders(viewer, target, ...)}, so
+         * {@code one} is the player viewing the placeholder text and {@code two} is the player the
+         * text is about - see {@link PlaceholdersServiceImpl#handlePluginPlaceholder(OfflinePlayer, OfflinePlayer, String)}.
+         */
+        @Override
+        public String onPlaceholderRequest(Player one, Player two, String placeholder) {
+            return placeholdersService.handlePluginPlaceholder(two, one, placeholder);
         }
     }
 

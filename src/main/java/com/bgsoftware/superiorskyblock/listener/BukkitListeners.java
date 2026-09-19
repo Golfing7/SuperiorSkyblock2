@@ -22,6 +22,7 @@ public class BukkitListeners {
 
     public void registerListeners() {
         new AdminPlayersListener(this.plugin);
+        new ChestLogsListener(this.plugin);
         new ChunksListener(this.plugin);
         new EntityTrackingListener(this.plugin);
         new FeaturesListener(this.plugin);

@@ -30,6 +30,7 @@ public class SQLDatabase {
         createPlayersTable();
         createGridTable();
         createBankTransactionsTable();
+        createChestTransactionsTable();
         createStackedBlocksTable();
     }
 
@@ -283,6 +284,20 @@ public class SQLDatabase {
                 new Column("time", "BIGINT"),
                 new Column("failure_reason", "TEXT"),
                 new Column("amount", "TEXT")
+        );
+    }
+
+    private static void createChestTransactionsTable() {
+        DBSession.createTable("chest_transactions",
+                new Column("island", "UUID"),
+                new Column("player", "UUID"),
+                new Column("chest_index", "INTEGER"),
+                new Column("slot", "INTEGER"),
+                new Column("action", "TEXT"),
+                new Column("item_type", "TEXT"),
+                new Column("amount", "INTEGER"),
+                new Column("position", "INTEGER"),
+                new Column("time", "BIGINT")
         );
     }
 

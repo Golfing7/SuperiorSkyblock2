@@ -29,7 +29,8 @@ public class DefaultUpgradeLevel extends SUpgradeLevel {
                 Value.syncedSupplied(() -> plugin.getSettings().getDefaultValues().getRealGeneratorsMap()),
                 Value.syncedSupplied(() -> plugin.getSettings().getDefaultValues().getIslandEffects()),
                 Value.syncedSupplied(() -> Optional.of(plugin.getSettings().getDefaultValues().getBankLimit())),
-                Value.syncedSupplied(() -> plugin.getSettings().getDefaultValues().getRoleLimitsAsView())
+                Value.syncedSupplied(() -> plugin.getSettings().getDefaultValues().getRoleLimitsAsView()),
+                Value.syncedFixed(OptionalInt.empty())
         );
     }
 

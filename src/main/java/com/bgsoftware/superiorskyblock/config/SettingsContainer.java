@@ -151,6 +151,11 @@ public class SettingsContainer {
     public final boolean leaveConfirm;
     public final boolean transferConfirm;
     public final String spawnersProvider;
+    public final boolean spawnerWorthScaledByLevel;
+    public final int spawnerWorthResyncIntervalSeconds;
+    public final int spawnerWorthResyncBatchSize;
+    public final String ownIslandNameColor;
+    public final String otherIslandNameColor;
     public final String stackedBlocksProvider;
     public final boolean islandNamesRequiredForCreation;
     public final int islandNamesMaxLength;
@@ -216,6 +221,8 @@ public class SettingsContainer {
     public final String islandChestTitle;
     public final int islandChestsDefaultPage;
     public final int islandChestsDefaultSize;
+    public final boolean chestLogs;
+    public final boolean cacheChestLogs;
     public final Map<String, List<String>> commandAliases;
     public final KeySet valuableBlocks;
     public final GameMode islandPreviewsGameMode;
@@ -393,6 +400,11 @@ public class SettingsContainer {
         leaveConfirm = config.getBoolean("leave-confirm");
         transferConfirm = config.getBoolean("transfer-confirm");
         spawnersProvider = config.getString("spawners-provider", "AUTO");
+        spawnerWorthScaledByLevel = config.getBoolean("spawners-worth-scaled-by-level", false);
+        spawnerWorthResyncIntervalSeconds = config.getInt("spawners-worth-resync-interval-seconds", 1800);
+        spawnerWorthResyncBatchSize = config.getInt("spawners-worth-resync-batch-size", 3);
+        ownIslandNameColor = config.getString("island-name-colors.own", "&a");
+        otherIslandNameColor = config.getString("island-name-colors.other", "&c");
         stackedBlocksProvider = config.getString("stacked-blocks-provider", "AUTO");
         islandNamesRequiredForCreation = config.getBoolean("island-names.required-for-creation", true);
         islandNamesMaxLength = config.getInt("island-names.max-length", 16);
@@ -526,6 +538,8 @@ public class SettingsContainer {
         islandChestTitle = Formatters.COLOR_FORMATTER.format(config.getString("island-chests.chest-title", "&4Island Chest"));
         islandChestsDefaultPage = config.getInt("island-chests.default-pages", 0);
         islandChestsDefaultSize = Math.min(6, Math.max(1, config.getInt("island-chests.default-size", 3)));
+        chestLogs = config.getBoolean("island-chests.chest-logs", true);
+        cacheChestLogs = config.getBoolean("island-chests.cache-chest-logs", true);
         Map<String, List<String>> commandAliases = new HashMap<>();
         if (config.isConfigurationSection("command-aliases")) {
             for (String label : config.getConfigurationSection("command-aliases").getKeys(false)) {

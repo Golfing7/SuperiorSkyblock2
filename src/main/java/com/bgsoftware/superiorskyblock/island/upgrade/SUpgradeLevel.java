@@ -67,6 +67,7 @@ public class SUpgradeLevel implements UpgradeLevel {
     private final Value<Map<PotionEffectType, Integer>> islandEffects;
     private final Value<Optional<BigDecimal>> bankLimit;
     private final Value<Int2IntMapView> roleLimits;
+    private final Value<OptionalInt> chestRows;
 
     @Nullable
     private ItemData itemData;
@@ -77,7 +78,7 @@ public class SUpgradeLevel implements UpgradeLevel {
                          Value<OptionalInt> borderSize, Value<KeyMap<Integer>> blockLimits,
                          Value<KeyMap<Integer>> entityLimits, Value<EnumerateMap<Dimension, Map<Key, Integer>>> generatorRates,
                          Value<Map<PotionEffectType, Integer>> islandEffects, Value<Optional<BigDecimal>> bankLimit,
-                         Value<Int2IntMapView> roleLimits) {
+                         Value<Int2IntMapView> roleLimits, Value<OptionalInt> chestRows) {
         this.level = level;
         this.cost = cost;
         this.commands = commands;
@@ -94,6 +95,7 @@ public class SUpgradeLevel implements UpgradeLevel {
         this.entityLimits = entityLimits;
         this.generatorRates = generatorRates;
         this.islandEffects = islandEffects;
+        this.chestRows = chestRows;
         this.bankLimit = bankLimit;
         this.roleLimits = roleLimits;
     }
@@ -249,6 +251,16 @@ public class SUpgradeLevel implements UpgradeLevel {
     }
 
     @Override
+    public boolean hasChestRows() {
+        return chestRows.get().isPresent();
+    }
+
+    @Override
+    public int getChestRows() {
+        return chestRows.get().orElse(IslandUpgradeConstants.NO_LIMIT_VALUE);
+    }
+
+    @Override
     public int getGeneratorAmount(Key key, Dimension dimension) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(dimension, "dimension parameter cannot be null.");
@@ -352,6 +364,10 @@ public class SUpgradeLevel implements UpgradeLevel {
 
     public IntValue getBorderSizeUpgradeValue() {
         return IntValue.syncedSupplied(() -> borderSize.get().orElse(IslandUpgradeConstants.NO_LIMIT_VALUE));
+    }
+
+    public IntValue getChestRowsUpgradeValue() {
+        return IntValue.syncedSupplied(() -> chestRows.get().orElse(IslandUpgradeConstants.NO_LIMIT_VALUE));
     }
 
     public EnumerateMap<Dimension, Map<Key, IntValue>> getGeneratorUpgradeValue() {

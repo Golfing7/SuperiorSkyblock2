@@ -20,4 +20,14 @@ public class IslandChestsSection extends SettingsContainerHolder implements Sett
         return getContainer().islandChestsDefaultSize;
     }
 
+    @Override
+    public boolean isChestLogs() {
+        return getContainer().chestLogs;
+    }
+
+    @Override
+    public boolean isCacheChestLogs() {
+        return getContainer().cacheChestLogs;
+    }
+
 }

@@ -507,6 +507,7 @@ public class GridManagerImpl extends Manager implements GridManager {
 
         // Delete island from database
         IslandsDatabaseBridge.deleteIsland(island);
+        com.bgsoftware.superiorskyblock.island.chest.logs.ChestLogsManager.forgetIsland(island.getUniqueId());
 
         for (Dimension dimension : Dimension.values()) {
             if (dimension.getEnvironment() == World.Environment.THE_END)

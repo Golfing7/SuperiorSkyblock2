@@ -293,6 +293,31 @@ public class SettingsManagerImpl extends Manager implements SettingsManager {
     }
 
     @Override
+    public boolean isSpawnerWorthScaledByLevel() {
+        return this.global.isSpawnerWorthScaledByLevel();
+    }
+
+    @Override
+    public int getSpawnerWorthResyncIntervalSeconds() {
+        return this.global.getSpawnerWorthResyncIntervalSeconds();
+    }
+
+    @Override
+    public int getSpawnerWorthResyncBatchSize() {
+        return this.global.getSpawnerWorthResyncBatchSize();
+    }
+
+    @Override
+    public String getOwnIslandNameColor() {
+        return this.global.getOwnIslandNameColor();
+    }
+
+    @Override
+    public String getOtherIslandNameColor() {
+        return this.global.getOtherIslandNameColor();
+    }
+
+    @Override
     public String getStackedBlocksProvider() {
         return this.global.getStackedBlocksProvider();
     }

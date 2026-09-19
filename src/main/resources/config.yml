@@ -490,6 +490,30 @@ transfer-confirm: true
 # Providers: Auto, WildStacker, EpicSpawners, MergedSpawner, PvpingSpawners, SilkSpawners, RoseStacker
 spawners-provider: 'AUTO'
 
+# If the spawners provider supports leveled spawners (currently only DecypherCore), scale a spawner's
+# contribution to island worth by (level / max-level) instead of always counting it at full worth.
+# Example: a spawner worth $100,000 with 5 max levels contributes $20,000 at level 1, $60,000 at level 3, etc.
+# Does not affect block limits, island level, or the block-counts GUI - worth only.
+spawners-worth-scaled-by-level: false
+
+# How often (in seconds) to passively re-check islands that have leveled spawners, to catch in-place
+# level upgrades (which don't otherwise trigger a worth update until the island is next recalculated).
+# Only islands with at least one scaled spawner are re-checked, a few at a time (see the batch size below),
+# so this doesn't run a full recalculation of every island on the server.
+spawners-worth-resync-interval-seconds: 1800
+
+# How many islands (with leveled spawners) to resync per interval above, to spread the work out.
+spawners-worth-resync-batch-size: 3
+
+# Colors used by relational island-name placeholders (superior_island_name_colored, and the
+# PlaceholderAPI relational placeholder %rel_superior_name_colored%), so a viewer sees their own
+# island's name in one color and everyone else's island name in another.
+island-name-colors:
+  # Color used when the island belongs to the player viewing the placeholder.
+  own: '&a'
+  # Color used when the island does not belong to the player viewing the placeholder.
+  other: '&c'
+
 # If you want a specific stacked-blocks provider to use, specify it here.
 # Providers: Auto, WildStacker, RoseStacker
 stacked-blocks-provider: 'AUTO'
@@ -840,6 +864,13 @@ island-chests:
   # This is the default number of rows for the chests.
   # This number must be between 1 and 6.
   default-size: 3
+  # Should transactions (items added/removed) on island chests be logged?
+  # View them with /is chestlogs [player].
+  chest-logs: true
+  # If chest-logs is enabled, whether to cache all logs to ram or not.
+  # When set to true, all chest logs will be loaded when the island loads and cached on ram (improved runtime performance).
+  # When set to false, chest logs will be loaded only when needed, and get cached for 10 minutes before being removed from ram.
+  cache-chest-logs: true
 
 # Custom aliases for plugin's commands.
 command-aliases:
@@ -905,7 +936,7 @@ charge-on-warp: 0
 public-warps: false
 
 # Should islands be locked by default?
-locked-islands: false
+locked-islands: true
 
 # Timeout for the recalculate task, in seconds.
 # If you want to disable the timeout, set this to 0 or below.

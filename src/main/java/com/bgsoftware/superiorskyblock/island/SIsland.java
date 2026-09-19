@@ -244,6 +244,8 @@ public class SIsland implements Island {
     private final AtomicReference<BigDecimal> islandLevel = new AtomicReference<>(BigDecimal.ZERO);
     private final AtomicReference<BigDecimal> bonusWorth = new AtomicReference<>(BigDecimal.ZERO);
     private final AtomicReference<BigDecimal> bonusLevel = new AtomicReference<>(BigDecimal.ZERO);
+    // Not persisted; restored by the next worth recalculation. See Island#getSpawnerWorthAdjustment.
+    private final AtomicReference<BigDecimal> spawnerWorthAdjustment = new AtomicReference<>(BigDecimal.ZERO);
     private final Map<MissionReference, Counter> completedMissions = new ConcurrentHashMap<>();
     private final Synchronized<IslandChest[]> islandChests = Synchronized.of(createDefaultIslandChests());
     private final Synchronized<CompletableFuture<Biome>> biomeGetterTask = Synchronized.of(null);
@@ -2861,6 +2863,7 @@ public class SIsland implements Island {
 
         islandWorth.set(BigDecimal.ZERO);
         islandLevel.set(BigDecimal.ZERO);
+        spawnerWorthAdjustment.set(BigDecimal.ZERO);
 
         plugin.getGrid().getIslandsContainer().notifyChange(SortingTypes.BY_WORTH, this);
         plugin.getGrid().getIslandsContainer().notifyChange(SortingTypes.BY_LEVEL, this);
@@ -2875,10 +2878,10 @@ public class SIsland implements Island {
     public BigDecimal getWorth() {
         double bankWorthRate = BuiltinModules.BANK.getConfiguration().getBankWorthRate();
 
-        BigDecimal islandWorth = this.islandWorth.get();
+        BigDecimal islandWorth = getRawWorth();
         BigDecimal islandBank = this.islandBank.getBalance();
         BigDecimal bonusWorth = this.bonusWorth.get();
-        BigDecimal finalIslandWorth = (bankWorthRate <= 0 ? getRawWorth() : islandWorth.add(
+        BigDecimal finalIslandWorth = (bankWorthRate <= 0 ? islandWorth : islandWorth.add(
                 islandBank.multiply(BigDecimal.valueOf(bankWorthRate)))).add(bonusWorth);
 
         if (!plugin.getSettings().isNegativeWorth() && finalIslandWorth.compareTo(BigDecimal.ZERO) < 0)
@@ -2889,7 +2892,7 @@ public class SIsland implements Island {
 
     @Override
     public BigDecimal getRawWorth() {
-        return islandWorth.get();
+        return islandWorth.get().add(spawnerWorthAdjustment.get());
     }
 
     @Override
@@ -2912,6 +2915,24 @@ public class SIsland implements Island {
         plugin.getGrid().sortIslands(SortingTypes.BY_WORTH);
 
         IslandsDatabaseBridge.saveBonusWorth(this);
+    }
+
+    @Override
+    public BigDecimal getSpawnerWorthAdjustment() {
+        return spawnerWorthAdjustment.get();
+    }
+
+    @Override
+    public void setSpawnerWorthAdjustment(BigDecimal spawnerWorthAdjustment) {
+        Preconditions.checkNotNull(spawnerWorthAdjustment, "spawnerWorthAdjustment parameter cannot be null.");
+
+        BigDecimal oldAdjustment = this.spawnerWorthAdjustment.getAndSet(spawnerWorthAdjustment);
+
+        if (Objects.equals(oldAdjustment, spawnerWorthAdjustment))
+            return;
+
+        plugin.getGrid().getIslandsContainer().notifyChange(SortingTypes.BY_WORTH, this);
+        plugin.getGrid().sortIslands(SortingTypes.BY_WORTH);
     }
 
     @Override
@@ -4535,6 +4556,7 @@ public class SIsland implements Island {
 
             clearBlockCounts();
             result.getBlockCounts().forEach((blockKey, amount) -> handleBlockPlaceInternal(blockKey, amount, 0));
+            setSpawnerWorthAdjustment(result.getSpawnerWorthAdjustment());
 
             BigDecimal newIslandLevel = getIslandLevel();
             BigDecimal newIslandWorth = getWorth();
@@ -5116,6 +5138,10 @@ public class SIsland implements Island {
             IntValue islandSize = this.islandSize.get();
             if (overrideCustom || islandSize.isSynced())
                 setIslandSizeInternal(upgradeLevel.getBorderSizeUpgradeValue());
+        }
+
+        if (upgradeLevel.hasChestRows()) {
+            setChestRows(0, upgradeLevel.getChestRows());
         }
 
         if (upgradeLevel.hasBankLimit()) {

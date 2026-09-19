@@ -38,7 +38,8 @@ public class SUpgrade implements Upgrade {
             Value.syncedFixed(new EnumerateMap<>(Collections.emptyList())),
             Value.syncedFixed(Collections.emptyMap()),
             Value.syncedFixed(Optional.empty()),
-            Value.syncedFixed(EmptyInt2IntMapView.INSTANCE));
+            Value.syncedFixed(EmptyInt2IntMapView.INSTANCE),
+            Value.syncedFixed(OptionalInt.empty()));
 
     private final String name;
 

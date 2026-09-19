@@ -29,7 +29,9 @@ import com.bgsoftware.superiorskyblock.world.chunk.ChunkLoadReason;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgorithm {
 
@@ -114,6 +117,7 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
                     } else {
                         Key spawnerKey = Keys.ofSpawner(spawnerInfo.getValue(), location);
                         blockCounts.addCounts(spawnerKey, spawnerInfo.getKey());
+                        applySpawnerLevelWorthAdjustment(blockCounts, location, spawnerKey, spawnerInfo.getKey());
                     }
                 }
 
@@ -136,6 +140,7 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
                 try {
                     blockKey = Keys.of(spawnerInfo.location.getBlock());
                     blockCount = spawnerInfo.spawnerCount;
+                    boolean isSpawnerKey = false;
 
                     if (blockCount <= 0) {
                         Pair<Integer, String> spawnersProviderInfo = plugin.getProviders()
@@ -146,10 +151,13 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
                         String entityType = spawnersProviderInfo.getValue();
                         if (entityType != null) {
                             blockKey = Keys.ofSpawner(entityType, spawnerInfo.location);
+                            isSpawnerKey = true;
                         }
                     }
 
                     blockCounts.addCounts(blockKey, blockCount);
+                    if (isSpawnerKey)
+                        applySpawnerLevelWorthAdjustment(blockCounts, spawnerInfo.location, blockKey, blockCount);
                 } catch (Throwable ignored) {
                 }
             }
@@ -188,6 +196,33 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
         return Collections.unmodifiableList(minecartBlockTypes);
     }
 
+    /**
+     * If spawner-level worth scaling is enabled and the spawners provider exposes level info for this
+     * location, records the (negative) worth deficit between this spawner's full configured worth and
+     * its level-scaled worth, so it can be applied on top of the flat worth the block-count map produces.
+     * <p>
+     * Does not affect {@code blockCounts} itself, so block limits, the counts GUI, and island level are
+     * completely unaffected by this - only the final worth number changes.
+     * </p>
+     */
+    private void applySpawnerLevelWorthAdjustment(BlockCountsTracker blockCounts, Location location, Key spawnerKey, int count) {
+        if (count <= 0 || !plugin.getSettings().isSpawnerWorthScaledByLevel())
+            return;
+
+        int level = plugin.getProviders().getSpawnersProvider().getSpawnerLevel(location);
+        int maxLevel = plugin.getProviders().getSpawnersProvider().getMaxSpawnerLevel(location);
+        if (level < 1 || maxLevel < 1 || level >= maxLevel)
+            return;
+
+        BigDecimal fullWorth = plugin.getBlockValues().getBlockValue(spawnerKey).getWorth();
+        if (fullWorth.compareTo(BigDecimal.ZERO) == 0)
+            return;
+
+        BigDecimal factor = BigDecimal.valueOf(level).divide(BigDecimal.valueOf(maxLevel), 10, RoundingMode.HALF_UP);
+        BigDecimal deficit = fullWorth.multiply(BigDecimal.valueOf(count)).multiply(factor.subtract(BigDecimal.ONE));
+        blockCounts.addSpawnerWorthAdjustment(deficit);
+    }
+
     private boolean loadExternalBlocksForChunk(ChunkPosition chunkPosition, BlockCountsTracker blockCounts) {
         // Load stacked blocks
         Collection<Pair<Key, Integer>> stackedBlocks = plugin.getProviders().getStackedBlocksProvider()
@@ -219,10 +254,16 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
     private static class BlockCountsTracker implements IslandCalculationResult {
 
         private final KeyMap<BigInteger> blockCounts = KeyMaps.createConcurrentHashMap(KeyIndicator.MATERIAL);
+        private final AtomicReference<BigDecimal> spawnerWorthAdjustment = new AtomicReference<>(BigDecimal.ZERO);
 
         @Override
         public Map<Key, BigInteger> getBlockCounts() {
             return blockCounts;
+        }
+
+        @Override
+        public BigDecimal getSpawnerWorthAdjustment() {
+            return spawnerWorthAdjustment.get();
         }
 
         public void addCounts(Key blockKey, int amount) {
@@ -231,6 +272,10 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
 
         public void addCounts(KeyMap<Counter> other) {
             other.forEach((key, counter) -> addCounts(key, counter.get()));
+        }
+
+        public void addSpawnerWorthAdjustment(BigDecimal delta) {
+            spawnerWorthAdjustment.updateAndGet(current -> current.add(delta));
         }
 
     }

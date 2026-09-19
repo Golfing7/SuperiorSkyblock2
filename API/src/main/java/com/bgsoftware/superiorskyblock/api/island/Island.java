@@ -1959,6 +1959,26 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
     void setBonusWorth(BigDecimal bonusWorth);
 
     /**
+     * Get the current spawner-level worth adjustment for the island.
+     * <p>
+     * This is a negative-or-zero value applied on top of the normal, per-block worth calculation,
+     * used by spawner providers that scale a spawner's worth contribution by its upgrade level
+     * (see {@link com.bgsoftware.superiorskyblock.api.hooks.SpawnersProvider}). It is not persisted
+     * across restarts; it's restored by the next worth recalculation.
+     */
+    default BigDecimal getSpawnerWorthAdjustment() {
+        return BigDecimal.ZERO;
+    }
+
+    /**
+     * Set the spawner-level worth adjustment for the island. Not persisted across restarts.
+     *
+     * @param spawnerWorthAdjustment the new adjustment value, replacing the previous one.
+     */
+    default void setSpawnerWorthAdjustment(BigDecimal spawnerWorthAdjustment) {
+    }
+
+    /**
      * Get the bonus level of the island.
      */
     BigDecimal getBonusLevel();

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.api.island.algorithms;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +38,15 @@ public interface IslandCalculationAlgorithm {
          * Get all block-counts that were calculated.
          */
         Map<Key, BigInteger> getBlockCounts();
+
+        /**
+         * Get the total spawner-level worth adjustment calculated for the island (see
+         * {@link Island#getSpawnerWorthAdjustment()}). Zero when no leveled spawners were found or
+         * the feature is disabled.
+         */
+        default BigDecimal getSpawnerWorthAdjustment() {
+            return BigDecimal.ZERO;
+        }
 
     }
 

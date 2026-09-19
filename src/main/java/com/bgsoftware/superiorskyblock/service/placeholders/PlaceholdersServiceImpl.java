@@ -251,6 +251,12 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
                     .put("missions_completed", (island, superiorPlayer) ->
                             island.getCompletedMissions().size() + "")
                     .put("name", (island, superiorPlayer) -> island.getName())
+                    .put("name_colored", (island, superiorPlayer) -> {
+                        boolean isOwnIsland = superiorPlayer != null && island.equals(superiorPlayer.getIsland());
+                        String color = isOwnIsland ? plugin.getSettings().getOwnIslandNameColor() :
+                                plugin.getSettings().getOtherIslandNameColor();
+                        return Formatters.COLOR_FORMATTER.format(color) + island.getName();
+                    })
                     .put("name_formatted", (island, superiorPlayer) -> island.getFormattedName())
                     .put("name_leader", (island, superiorPlayer) ->
                             island.getName().isEmpty() ? island.getOwner().getName() : island.getName())
@@ -495,17 +501,37 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
     }
 
     public String handlePluginPlaceholder(@Nullable OfflinePlayer offlinePlayer, String placeholder) {
-        SuperiorPlayer superiorPlayer = offlinePlayer == null ? null :
-                plugin.getPlayers().getSuperiorPlayer(offlinePlayer.getUniqueId());
+        return handlePluginPlaceholder(offlinePlayer, offlinePlayer, placeholder);
+    }
+
+    /**
+     * Handles a placeholder relationally: the island (and any location-based lookups) are resolved
+     * from {@code subjectPlayer} - the player the placeholder is about (e.g. whose nametag/tab entry
+     * this is) - while every other bit of context (locale formatting, permission checks, and in
+     * particular island-ownership comparisons used by placeholders like {@code name_colored}) is
+     * resolved from {@code viewerPlayer} - the player the placeholder text is being generated for.
+     * <p>
+     * For the normal, non-relational case both parameters are the same player (see the single-arg
+     * overload above), which keeps existing behavior completely unchanged.
+     *
+     * @param subjectPlayer the player the placeholder concerns
+     * @param viewerPlayer  the player viewing the placeholder text
+     * @param placeholder   the placeholder to parse
+     */
+    public String handlePluginPlaceholder(@Nullable OfflinePlayer subjectPlayer, @Nullable OfflinePlayer viewerPlayer, String placeholder) {
+        SuperiorPlayer subjectSuperiorPlayer = subjectPlayer == null ? null :
+                plugin.getPlayers().getSuperiorPlayer(subjectPlayer.getUniqueId());
+        SuperiorPlayer viewerSuperiorPlayer = viewerPlayer == null ? subjectSuperiorPlayer :
+                plugin.getPlayers().getSuperiorPlayer(viewerPlayer.getUniqueId());
 
         Optional<String> placeholderResult = Optional.empty();
 
         Matcher matcher;
 
-        if (superiorPlayer != null) {
+        if (subjectSuperiorPlayer != null) {
             PlayerPlaceholderParser customPlayerParser = CUSTOM_PLAYER_PARSERS.get(placeholder);
             if (customPlayerParser != null) {
-                placeholderResult = Optional.ofNullable(customPlayerParser.apply(superiorPlayer));
+                placeholderResult = Optional.ofNullable(customPlayerParser.apply(viewerSuperiorPlayer));
             } else {
                 boolean isLocationPlaceholder = placeholder.startsWith("location_");
                 IslandPlaceholderParser customIslandParser = CUSTOM_ISLAND_PARSERS.get(
@@ -514,12 +540,12 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
                     Island island;
                     if (isLocationPlaceholder) {
                         try (ObjectsPools.Wrapper<Location> wrapper = ObjectsPools.LOCATION.obtain()) {
-                            island = plugin.getGrid().getIslandAt(superiorPlayer.getLocation(wrapper.getHandle()));
+                            island = plugin.getGrid().getIslandAt(subjectSuperiorPlayer.getLocation(wrapper.getHandle()));
                         }
                     } else {
-                        island = superiorPlayer.getIsland();
+                        island = subjectSuperiorPlayer.getIsland();
                     }
-                    placeholderResult = Optional.ofNullable(customIslandParser.apply(island, superiorPlayer));
+                    placeholderResult = Optional.ofNullable(customIslandParser.apply(island, viewerSuperiorPlayer));
                 }
             }
         }
@@ -527,22 +553,22 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
         if (!placeholderResult.isPresent()) {
             if ((matcher = PLAYER_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                 String subPlaceholder = matcher.group(1).toLowerCase(Locale.ENGLISH);
-                placeholderResult = parsePlaceholdersForPlayer(superiorPlayer, subPlaceholder);
+                placeholderResult = parsePlaceholdersForPlayer(viewerSuperiorPlayer, subPlaceholder);
             } else if ((matcher = ISLAND_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                 String subPlaceholder = matcher.group(1).toLowerCase(Locale.ENGLISH);
                 Island island;
                 boolean isLocationPlaceholder = false;
-                if (superiorPlayer == null) {
+                if (subjectSuperiorPlayer == null) {
                     island = null;
                 } else if (subPlaceholder.startsWith("location_")) {
                     isLocationPlaceholder = true;
                     try (ObjectsPools.Wrapper<Location> wrapper = ObjectsPools.LOCATION.obtain()) {
-                        island = plugin.getGrid().getIslandAt(superiorPlayer.getLocation(wrapper.getHandle()));
+                        island = plugin.getGrid().getIslandAt(subjectSuperiorPlayer.getLocation(wrapper.getHandle()));
                     }
                 } else {
-                    island = superiorPlayer.getIsland();
+                    island = subjectSuperiorPlayer.getIsland();
                 }
-                placeholderResult = parsePlaceholdersForIsland(island, superiorPlayer,
+                placeholderResult = parsePlaceholdersForIsland(island, viewerSuperiorPlayer,
                         isLocationPlaceholder ? placeholder.substring(9) : placeholder,
                         isLocationPlaceholder ? subPlaceholder.substring(9) : subPlaceholder);
             }

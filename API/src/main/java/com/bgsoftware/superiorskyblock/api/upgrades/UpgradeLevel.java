@@ -161,6 +161,16 @@ public interface UpgradeLevel {
     int getBorderSize();
 
     /**
+     * Checks if this level has a custom amount of island chest rows.
+     */
+    boolean hasChestRows();
+
+    /**
+     * Get the amount of island chest rows unlocked at this level (applies to the primary/first island chest).
+     */
+    int getChestRows();
+
+    /**
      * Get the generator rate of a block for this level in a specific world.
      *
      * @param key       The block to check.

@@ -713,6 +713,24 @@ public class IslandsDatabaseBridge {
         });
     }
 
+    public static void saveChestTransaction(Island island, com.bgsoftware.superiorskyblock.island.chest.logs.ChestTransaction chestTransaction) {
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> {
+            try (ObjectsPools.Batch<DBColumn> pool = ObjectsPools.DB_COLUMN_BATCH.obtain()) {
+                databaseBridge.insertObject("chest_transactions",
+                        pool.obtain().withNameAndValue("island", island.getUniqueId().toString()),
+                        pool.obtain().withNameAndValue("player", chestTransaction.getPlayer() == null ? "" : chestTransaction.getPlayer().toString()),
+                        pool.obtain().withNameAndValue("chest_index", chestTransaction.getChestIndex()),
+                        pool.obtain().withNameAndValue("slot", chestTransaction.getSlot()),
+                        pool.obtain().withNameAndValue("action", chestTransaction.getAction().name()),
+                        pool.obtain().withNameAndValue("item_type", chestTransaction.getItemType().name()),
+                        pool.obtain().withNameAndValue("amount", chestTransaction.getAmount()),
+                        pool.obtain().withNameAndValue("position", chestTransaction.getPosition()),
+                        pool.obtain().withNameAndValue("time", chestTransaction.getTime())
+                );
+            }
+        });
+    }
+
     public static void savePersistentDataContainer(Island island) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> {
             try (ObjectsPools.Batch<DBColumn> pool = ObjectsPools.DB_COLUMN_BATCH.obtain()) {
@@ -818,6 +836,7 @@ public class IslandsDatabaseBridge {
             databaseBridge.deleteObject("islands_banks", islandFilter);
             databaseBridge.deleteObject("islands_settings", islandFilter);
             databaseBridge.deleteObject("bank_transactions", islandFilter);
+            databaseBridge.deleteObject("chest_transactions", islandFilter);
 
 
             if (!island.getBannedPlayers().isEmpty())

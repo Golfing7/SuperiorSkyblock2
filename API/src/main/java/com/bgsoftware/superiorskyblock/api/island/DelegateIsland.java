@@ -1360,6 +1360,16 @@ public class DelegateIsland implements Island {
     }
 
     @Override
+    public BigDecimal getSpawnerWorthAdjustment() {
+        return this.handle.getSpawnerWorthAdjustment();
+    }
+
+    @Override
+    public void setSpawnerWorthAdjustment(BigDecimal spawnerWorthAdjustment) {
+        this.handle.setSpawnerWorthAdjustment(spawnerWorthAdjustment);
+    }
+
+    @Override
     public BigDecimal getBonusLevel() {
         return this.handle.getBonusLevel();
     }

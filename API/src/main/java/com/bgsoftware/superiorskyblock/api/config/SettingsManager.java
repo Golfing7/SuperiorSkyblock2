@@ -263,6 +263,51 @@ public interface SettingsManager {
     String getSpawnersProvider();
 
     /**
+     * Whether a spawner's contribution to island worth should be scaled by its upgrade level, when
+     * the spawners provider supports leveled spawners.
+     * Config-path: spawners-worth-scaled-by-level
+     */
+    default boolean isSpawnerWorthScaledByLevel() {
+        return false;
+    }
+
+    /**
+     * How often, in seconds, to passively resync islands with scaled spawners (see
+     * {@link #isSpawnerWorthScaledByLevel()}).
+     * Config-path: spawners-worth-resync-interval-seconds
+     */
+    default int getSpawnerWorthResyncIntervalSeconds() {
+        return 1800;
+    }
+
+    /**
+     * How many islands with scaled spawners to resync per interval (see
+     * {@link #getSpawnerWorthResyncIntervalSeconds()}).
+     * Config-path: spawners-worth-resync-batch-size
+     */
+    default int getSpawnerWorthResyncBatchSize() {
+        return 3;
+    }
+
+    /**
+     * The color code (e.g. {@code &a}) prefixed to an island's name in relational name placeholders
+     * when the island belongs to the player viewing the placeholder.
+     * Config-path: island-name-colors.own
+     */
+    default String getOwnIslandNameColor() {
+        return "&a";
+    }
+
+    /**
+     * The color code (e.g. {@code &c}) prefixed to an island's name in relational name placeholders
+     * when the island does not belong to the player viewing the placeholder.
+     * Config-path: island-name-colors.other
+     */
+    default String getOtherIslandNameColor() {
+        return "&c";
+    }
+
+    /**
      * The stacked-blocks provider to use.
      * If set to AUTO, the plugin will automatically detect an available stacked-blocks provider and use it.
      * Config-path: stacked-blocks-provider
@@ -1387,6 +1432,23 @@ public interface SettingsManager {
          * Config-path: island-chests.default-size
          */
         int getDefaultSize();
+
+        /**
+         * Whether transactions (items added/removed) on island chests should be logged.
+         * Config-path: island-chests.chest-logs
+         */
+        default boolean isChestLogs() {
+            return true;
+        }
+
+        /**
+         * Whether chest logs should be cached in memory (faster, uses more RAM) instead of
+         * loaded from the database on demand.
+         * Config-path: island-chests.cache-chest-logs
+         */
+        default boolean isCacheChestLogs() {
+            return true;
+        }
 
     }
 

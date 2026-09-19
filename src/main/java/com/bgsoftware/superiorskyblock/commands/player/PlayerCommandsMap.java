@@ -20,6 +20,7 @@ public class PlayerCommandsMap extends CommandsMap {
         registerCommand(new CmdBiome());
         registerCommand(new CmdBorder());
         registerCommand(new CmdChest());
+        registerCommand(new CmdChestLogs());
         registerCommand(new CmdClose());
         if (plugin.getSettings().isCoopMembers()) {
             registerCommand(new CmdCoop());
