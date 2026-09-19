@@ -1370,6 +1370,26 @@ public class DelegateIsland implements Island {
     }
 
     @Override
+    public BigDecimal getSpawnerIslandLevelAdjustment() {
+        return this.handle.getSpawnerIslandLevelAdjustment();
+    }
+
+    @Override
+    public void setSpawnerIslandLevelAdjustment(BigDecimal spawnerIslandLevelAdjustment) {
+        this.handle.setSpawnerIslandLevelAdjustment(spawnerIslandLevelAdjustment);
+    }
+
+    @Override
+    public Map<Key, SpawnerLevelCounts> getSpawnerLevelCounts() {
+        return this.handle.getSpawnerLevelCounts();
+    }
+
+    @Override
+    public SpawnerLevelCounts getSpawnerLevelCounts(Key key) {
+        return this.handle.getSpawnerLevelCounts(key);
+    }
+
+    @Override
     public BigDecimal getBonusLevel() {
         return this.handle.getBonusLevel();
     }

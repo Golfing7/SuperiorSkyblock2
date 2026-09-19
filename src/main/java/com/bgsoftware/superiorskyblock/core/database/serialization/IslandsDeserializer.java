@@ -7,6 +7,7 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.upgrades.Upgrade;
@@ -35,6 +36,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -310,6 +313,37 @@ public class IslandsDeserializer {
             Key entityKey = Keys.ofEntityType(entityCountObject.get("id").getAsString());
             BigInteger amount = new BigInteger(entityCountObject.get("amount").getAsString());
             builder.setEntityCount(entityKey, amount);
+        });
+    }
+
+    public static void deserializeSpawnerLevelCounts(Island.Builder builder, String spawners) {
+        if (Text.isBlank(spawners))
+            return;
+
+        JsonArray spawnerLevelCounts = GSON.fromJson(spawners, JsonArray.class);
+
+        spawnerLevelCounts.forEach(spawnerElement -> {
+            JsonObject spawnerObject = spawnerElement.getAsJsonObject();
+            Key spawnerKey = Keys.ofMaterialAndData(spawnerObject.get("id").getAsString());
+            int maxLevel = spawnerObject.get("max_level").getAsInt();
+
+            Map<Integer, BigInteger> levelCounts = new HashMap<>();
+            spawnerObject.getAsJsonArray("levels").forEach(levelElement -> {
+                JsonObject levelObject = levelElement.getAsJsonObject();
+                int level = levelObject.get("level").getAsInt();
+                BigInteger amount = new BigInteger(levelObject.get("amount").getAsString());
+
+                // SpawnerLevelCounts rejects those, and we do not want a corrupted record to fail the entire island.
+                if (level < 1 || amount.signum() <= 0) {
+                    Log.warn("Cannot load spawner level counts of ", spawnerKey, " with invalid level ", level, ", skipping...");
+                    return;
+                }
+
+                levelCounts.put(level, amount);
+            });
+
+            if (!levelCounts.isEmpty())
+                builder.setSpawnerLevelCounts(spawnerKey, new SpawnerLevelCounts(levelCounts, maxLevel));
         });
     }
 

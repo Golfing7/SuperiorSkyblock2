@@ -18,6 +18,7 @@ import com.bgsoftware.superiorskyblock.core.menu.view.AbstractPagedMenuView;
 import com.bgsoftware.superiorskyblock.core.menu.view.IIslandMenuView;
 import com.bgsoftware.superiorskyblock.core.menu.view.args.IslandViewArgs;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.math.BigInteger;
 import java.util.Comparator;
@@ -36,8 +37,21 @@ public class MenuCounts extends AbstractPagedMenu<MenuCounts.View, IslandViewArg
     private static final Function<Map.Entry<Key, BigInteger>, MenuCounts.BlockCount> BLOCK_COUNT_MAPPER =
             entry -> new MenuCounts.BlockCount(entry.getKey(), entry.getValue());
 
-    private MenuCounts(MenuParseResult<View> parseResult) {
+    private final String spawnerLevelsHeader;
+    private final String spawnerLevelsLine;
+
+    private MenuCounts(MenuParseResult<View> parseResult, String spawnerLevelsHeader, String spawnerLevelsLine) {
         super(MenuIdentifiers.MENU_COUNTS, parseResult, false);
+        this.spawnerLevelsHeader = spawnerLevelsHeader;
+        this.spawnerLevelsLine = spawnerLevelsLine;
+    }
+
+    public String getSpawnerLevelsHeader() {
+        return spawnerLevelsHeader;
+    }
+
+    public String getSpawnerLevelsLine() {
+        return spawnerLevelsLine;
     }
 
     @Override
@@ -54,7 +68,15 @@ public class MenuCounts extends AbstractPagedMenu<MenuCounts.View, IslandViewArg
     public static MenuCounts createInstance() {
         MenuParseResult<View> menuParseResult = MenuParserImpl.getInstance().loadMenu("counts.yml",
                 null, new CountsPagedObjectButton.Builder());
-        return menuParseResult == null ? null : new MenuCounts(menuParseResult);
+        if (menuParseResult == null)
+            return null;
+
+        YamlConfiguration cfg = menuParseResult.getConfig();
+
+        String spawnerLevelsHeader = cfg.getString("spawner-levels.header", "&6&l* &e&lSpawner Levels:");
+        String spawnerLevelsLine = cfg.getString("spawner-levels.line", "&7  - Level {0}/{4}: &fx{1} &7(${2})");
+
+        return new MenuCounts(menuParseResult, spawnerLevelsHeader, spawnerLevelsLine);
     }
 
     public static class View extends AbstractPagedMenuView<View, IslandViewArgs, MenuCounts.BlockCount> implements IIslandMenuView {
@@ -70,6 +92,11 @@ public class MenuCounts extends AbstractPagedMenu<MenuCounts.View, IslandViewArg
         @Override
         public Island getIsland() {
             return this.island;
+        }
+
+        @Override
+        public MenuCounts getMenu() {
+            return (MenuCounts) super.getMenu();
         }
 
         @Override

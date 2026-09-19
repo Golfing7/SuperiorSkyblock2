@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.menu.button.PagedMenuTemplateButton;
@@ -14,8 +15,10 @@ import com.bgsoftware.superiorskyblock.core.itemstack.ItemSkulls;
 import com.bgsoftware.superiorskyblock.core.key.types.MaterialKey;
 import com.bgsoftware.superiorskyblock.core.menu.button.AbstractPagedMenuButton;
 import com.bgsoftware.superiorskyblock.core.menu.button.PagedMenuTemplateButtonImpl;
+import com.bgsoftware.superiorskyblock.core.menu.SpawnerLevelsLore;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuCounts;
 import com.bgsoftware.superiorskyblock.core.values.BlockValue;
+import com.bgsoftware.superiorskyblock.island.SpawnerLevelValues;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -278,16 +281,23 @@ public class CountsPagedObjectButton extends AbstractPagedMenuButton<MenuCounts.
 
         SuperiorPlayer inventoryViewer = menuView.getInventoryViewer();
 
+        SpawnerLevelCounts spawnerLevelCounts = menuView.getIsland().getSpawnerLevelCounts(rawKey);
+        BigDecimal totalWorth = SpawnerLevelValues.getTotalValue(worthValue, pagedObject.getAmount(), spawnerLevelCounts);
+        BigDecimal totalLevel = SpawnerLevelValues.getTotalValue(levelValue, pagedObject.getAmount(), spawnerLevelCounts);
+
         return itemBuilder
                 .withName(currentMeta.hasDisplayName() ? currentMeta.getDisplayName() : "")
                 .withLore(currentMeta.hasLore() ? currentMeta.getLore() : Collections.emptyList())
                 .withAmount(BigInteger.ONE.max(MAX_STACK.min(amount.toBigInteger())).intValue())
                 .replaceAll("{0}", Formatters.CAPITALIZED_FORMATTER.format(materialName))
                 .replaceAll("{1}", amount + "")
-                .replaceAll("{2}", Formatters.NUMBER_FORMATTER.format(worthValue.multiply(amount)))
-                .replaceAll("{3}", Formatters.NUMBER_FORMATTER.format(levelValue.multiply(amount)))
-                .replaceAll("{4}", Formatters.FANCY_NUMBER_FORMATTER.format(worthValue.multiply(amount), inventoryViewer.getUserLocale()))
-                .replaceAll("{5}", Formatters.FANCY_NUMBER_FORMATTER.format(levelValue.multiply(amount), inventoryViewer.getUserLocale()))
+                .replaceAll("{2}", Formatters.NUMBER_FORMATTER.format(totalWorth))
+                .replaceAll("{3}", Formatters.NUMBER_FORMATTER.format(totalLevel))
+                .replaceAll("{4}", Formatters.FANCY_NUMBER_FORMATTER.format(totalWorth, inventoryViewer.getUserLocale()))
+                .replaceAll("{5}", Formatters.FANCY_NUMBER_FORMATTER.format(totalLevel, inventoryViewer.getUserLocale()))
+                .replaceLoreWithLines("{6}", SpawnerLevelsLore.build(spawnerLevelCounts,
+                        menuView.getMenu().getSpawnerLevelsHeader(), menuView.getMenu().getSpawnerLevelsLine(),
+                        worthValue, levelValue, inventoryViewer))
                 .build(inventoryViewer);
     }
 

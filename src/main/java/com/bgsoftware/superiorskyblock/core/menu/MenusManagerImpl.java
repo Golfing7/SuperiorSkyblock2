@@ -68,6 +68,17 @@ public class MenusManagerImpl extends Manager implements MenusManager {
     }
 
     @Override
+    public void openChestLogs(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, Island targetIsland,
+                              @Nullable SuperiorPlayer filteredPlayer) {
+        plugin.getProviders().getMenusProvider().openChestLogs(targetPlayer, previousMenu, targetIsland, filteredPlayer);
+    }
+
+    @Override
+    public void refreshChestLogs(Island island) {
+        plugin.getProviders().getMenusProvider().refreshChestLogs(island);
+    }
+
+    @Override
     public void openIslandBiomesMenu(SuperiorPlayer superiorPlayer) {
         openBiomes(superiorPlayer, null, superiorPlayer.getIsland());
     }

@@ -12,6 +12,7 @@ public class MenuIdentifiers {
     public static final String MENU_CONFIRM_KICK = "MenuConfirmKick";
     public static final String MENU_CONFIRM_LEAVE = "MenuConfirmLeave";
     public static final String MENU_CONFIRM_TRANSFER = "MenuConfirmTransfer";
+    public static final String MENU_CHEST_LOGS = "MenuChestLogs";
     public static final String MENU_CONTROL_PANEL = "MenuControlPanel";
     public static final String MENU_COOPS = "MenuCoops";
     public static final String MENU_COUNTS = "MenuCounts";

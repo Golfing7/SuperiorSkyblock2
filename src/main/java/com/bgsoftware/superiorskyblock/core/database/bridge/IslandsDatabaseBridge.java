@@ -11,6 +11,7 @@ import com.bgsoftware.superiorskyblock.api.island.IslandChest;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.island.bank.BankTransaction;
 import com.bgsoftware.superiorskyblock.api.island.warps.IslandWarp;
 import com.bgsoftware.superiorskyblock.api.island.warps.WarpCategory;
@@ -572,6 +573,11 @@ public class IslandsDatabaseBridge {
     public static void saveBlockCounts(Island island) {
         updateIslandValue(island, "block_counts",
                 IslandsSerializer.serializeBlockCounts(island.getBlockCountsAsBigInteger()));
+    }
+
+    public static void saveSpawnerLevelCounts(Island island, Map<Key, SpawnerLevelCounts> spawnerLevelCounts) {
+        updateIslandValue(island, "spawner_level_counts",
+                IslandsSerializer.serializeSpawnerLevelCounts(spawnerLevelCounts));
     }
 
     public static void saveEntityCounts(Island island) {

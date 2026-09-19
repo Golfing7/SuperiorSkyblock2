@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.island.algorithm;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandChunkFlags;
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandCalculationAlgorithm;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
@@ -23,17 +24,19 @@ import com.bgsoftware.superiorskyblock.core.profiler.ProfileType;
 import com.bgsoftware.superiorskyblock.core.profiler.Profiler;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
 import com.bgsoftware.superiorskyblock.core.threads.Synchronized;
+import com.bgsoftware.superiorskyblock.core.values.BlockValue;
 import com.bgsoftware.superiorskyblock.external.blocks.ICustomBlocksProvider;
 import com.bgsoftware.superiorskyblock.island.IslandUtils;
+import com.bgsoftware.superiorskyblock.island.SpawnerLevelValues;
 import com.bgsoftware.superiorskyblock.world.chunk.ChunkLoadReason;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -117,7 +120,6 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
                     } else {
                         Key spawnerKey = Keys.ofSpawner(spawnerInfo.getValue(), location);
                         blockCounts.addCounts(spawnerKey, spawnerInfo.getKey());
-                        applySpawnerLevelWorthAdjustment(blockCounts, location, spawnerKey, spawnerInfo.getKey());
                     }
                 }
 
@@ -140,24 +142,19 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
                 try {
                     blockKey = Keys.of(spawnerInfo.location.getBlock());
                     blockCount = spawnerInfo.spawnerCount;
-                    boolean isSpawnerKey = false;
 
                     if (blockCount <= 0) {
                         Pair<Integer, String> spawnersProviderInfo = plugin.getProviders()
                                 .getSpawnersProvider().getSpawner(spawnerInfo.location);
 
                         blockCount = spawnersProviderInfo.getKey();
-
                         String entityType = spawnersProviderInfo.getValue();
-                        if (entityType != null) {
+                        if (entityType != null)
                             blockKey = Keys.ofSpawner(entityType, spawnerInfo.location);
-                            isSpawnerKey = true;
-                        }
                     }
 
                     blockCounts.addCounts(blockKey, blockCount);
-                    if (isSpawnerKey)
-                        applySpawnerLevelWorthAdjustment(blockCounts, spawnerInfo.location, blockKey, blockCount);
+                    trackSpawnerLevel(blockCounts, spawnerInfo.location, blockKey, blockCount);
                 } catch (Throwable ignored) {
                 }
             }
@@ -197,30 +194,43 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
     }
 
     /**
-     * If spawner-level worth scaling is enabled and the spawners provider exposes level info for this
-     * location, records the (negative) worth deficit between this spawner's full configured worth and
-     * its level-scaled worth, so it can be applied on top of the flat worth the block-count map produces.
+     * If the spawners provider exposes level info for this location, records the spawner's level in the
+     * level breakdown of its key (shown in the counts GUI).
      * <p>
-     * Does not affect {@code blockCounts} itself, so block limits, the counts GUI, and island level are
-     * completely unaffected by this - only the final worth number changes.
+     * If spawner-level scaling is also enabled, records the (negative) deficits between this spawner's
+     * full configured worth and island level and their level-scaled values, so they can be applied on top
+     * of the flat values the block-count map produces. Block limits are unaffected by this.
+     * </p>
+     * <p>
+     * Must be called from the main thread, as providers may only be able to read levels from there.
      * </p>
      */
-    private void applySpawnerLevelWorthAdjustment(BlockCountsTracker blockCounts, Location location, Key spawnerKey, int count) {
-        if (count <= 0 || !plugin.getSettings().isSpawnerWorthScaledByLevel())
+    private void trackSpawnerLevel(BlockCountsTracker blockCounts, Location location, Key spawnerKey, int count) {
+        if (count <= 0)
             return;
 
         int level = plugin.getProviders().getSpawnersProvider().getSpawnerLevel(location);
+        if (level < 1)
+            return;
+
         int maxLevel = plugin.getProviders().getSpawnersProvider().getMaxSpawnerLevel(location);
-        if (level < 1 || maxLevel < 1 || level >= maxLevel)
+        blockCounts.addSpawnerLevel(spawnerKey, level, maxLevel, count);
+
+        if (!plugin.getSettings().isSpawnerWorthScaledByLevel() || maxLevel < 1 || level >= maxLevel)
             return;
 
-        BigDecimal fullWorth = plugin.getBlockValues().getBlockValue(spawnerKey).getWorth();
-        if (fullWorth.compareTo(BigDecimal.ZERO) == 0)
-            return;
+        BlockValue blockValue = plugin.getBlockValues().getBlockValue(spawnerKey);
+        // How much of the spawner's full value is lost because it's not maxed out yet.
+        BigDecimal lostValueRate = SpawnerLevelValues.getValueFactor(level, maxLevel).subtract(BigDecimal.ONE)
+                .multiply(BigDecimal.valueOf(count));
 
-        BigDecimal factor = BigDecimal.valueOf(level).divide(BigDecimal.valueOf(maxLevel), 10, RoundingMode.HALF_UP);
-        BigDecimal deficit = fullWorth.multiply(BigDecimal.valueOf(count)).multiply(factor.subtract(BigDecimal.ONE));
-        blockCounts.addSpawnerWorthAdjustment(deficit);
+        BigDecimal fullWorth = blockValue.getWorth();
+        if (fullWorth.compareTo(BigDecimal.ZERO) != 0)
+            blockCounts.addSpawnerWorthAdjustment(fullWorth.multiply(lostValueRate));
+
+        BigDecimal fullLevel = blockValue.getLevel();
+        if (fullLevel.compareTo(BigDecimal.ZERO) != 0)
+            blockCounts.addSpawnerIslandLevelAdjustment(fullLevel.multiply(lostValueRate));
     }
 
     private boolean loadExternalBlocksForChunk(ChunkPosition chunkPosition, BlockCountsTracker blockCounts) {
@@ -255,6 +265,9 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
 
         private final KeyMap<BigInteger> blockCounts = KeyMaps.createConcurrentHashMap(KeyIndicator.MATERIAL);
         private final AtomicReference<BigDecimal> spawnerWorthAdjustment = new AtomicReference<>(BigDecimal.ZERO);
+        private final AtomicReference<BigDecimal> spawnerIslandLevelAdjustment = new AtomicReference<>(BigDecimal.ZERO);
+        // Only accessed from the main thread (see trackSpawnerLevel).
+        private final KeyMap<SpawnerLevels> spawnerLevels = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
 
         @Override
         public Map<Key, BigInteger> getBlockCounts() {
@@ -266,6 +279,11 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
             return spawnerWorthAdjustment.get();
         }
 
+        @Override
+        public BigDecimal getSpawnerIslandLevelAdjustment() {
+            return spawnerIslandLevelAdjustment.get();
+        }
+
         public void addCounts(Key blockKey, int amount) {
             blockCounts.put(blockKey, blockCounts.getRaw(blockKey, BigInteger.ZERO).add(BigInteger.valueOf(amount)));
         }
@@ -274,9 +292,43 @@ public class DefaultIslandCalculationAlgorithm implements IslandCalculationAlgor
             other.forEach((key, counter) -> addCounts(key, counter.get()));
         }
 
+        @Override
+        public Map<Key, SpawnerLevelCounts> getSpawnerLevelCounts() {
+            if (spawnerLevels.isEmpty())
+                return Collections.emptyMap();
+
+            KeyMap<SpawnerLevelCounts> spawnerLevelCounts = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+            spawnerLevels.forEach((spawnerKey, levels) ->
+                    spawnerLevelCounts.put(spawnerKey, new SpawnerLevelCounts(levels.counts, levels.maxLevel)));
+            return spawnerLevelCounts;
+        }
+
         public void addSpawnerWorthAdjustment(BigDecimal delta) {
             spawnerWorthAdjustment.updateAndGet(current -> current.add(delta));
         }
+
+        public void addSpawnerIslandLevelAdjustment(BigDecimal delta) {
+            spawnerIslandLevelAdjustment.updateAndGet(current -> current.add(delta));
+        }
+
+        public void addSpawnerLevel(Key spawnerKey, int level, int maxLevel, int amount) {
+            // Using getRaw, as get may fall back to the global spawner key.
+            SpawnerLevels levels = spawnerLevels.getRaw(spawnerKey, null);
+            if (levels == null) {
+                levels = new SpawnerLevels();
+                spawnerLevels.put(spawnerKey, levels);
+            }
+
+            levels.counts.merge(level, BigInteger.valueOf(amount), BigInteger::add);
+            levels.maxLevel = Math.max(levels.maxLevel, maxLevel);
+        }
+
+    }
+
+    private static class SpawnerLevels {
+
+        private final Map<Integer, BigInteger> counts = new HashMap<>();
+        private int maxLevel = -1;
 
     }
 

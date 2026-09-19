@@ -16,6 +16,7 @@ import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PermissionNode;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.island.SortingType;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandCalculationAlgorithm;
@@ -244,8 +245,13 @@ public class SIsland implements Island {
     private final AtomicReference<BigDecimal> islandLevel = new AtomicReference<>(BigDecimal.ZERO);
     private final AtomicReference<BigDecimal> bonusWorth = new AtomicReference<>(BigDecimal.ZERO);
     private final AtomicReference<BigDecimal> bonusLevel = new AtomicReference<>(BigDecimal.ZERO);
-    // Not persisted; restored by the next worth recalculation. See Island#getSpawnerWorthAdjustment.
+    // Derived from the spawner level counts below. See Island#getSpawnerWorthAdjustment.
     private final AtomicReference<BigDecimal> spawnerWorthAdjustment = new AtomicReference<>(BigDecimal.ZERO);
+    private final AtomicReference<BigDecimal> spawnerIslandLevelAdjustment = new AtomicReference<>(BigDecimal.ZERO);
+    // The breakdowns as calculated, keyed by the spawner keys themselves. This is what gets persisted.
+    private final AtomicReference<KeyMap<SpawnerLevelCounts>> calculatedSpawnerLevelCounts = new AtomicReference<>(KeyMaps.createEmptyMap());
+    // The same breakdowns, keyed by the keys block counts are stored under. See Island#getSpawnerLevelCounts.
+    private final AtomicReference<KeyMap<SpawnerLevelCounts>> spawnerLevelCounts = new AtomicReference<>(KeyMaps.createEmptyMap());
     private final Map<MissionReference, Counter> completedMissions = new ConcurrentHashMap<>();
     private final Synchronized<IslandChest[]> islandChests = Synchronized.of(createDefaultIslandChests());
     private final Synchronized<CompletableFuture<Biome>> biomeGetterTask = Synchronized.of(null);
@@ -366,6 +372,14 @@ public class SIsland implements Island {
                     return null;
                 });
                 this.lastSavedBlockCounts = this.currentTotalBlockCounts.get();
+            });
+        }
+
+        if (!builder.spawnerLevelCounts.isEmpty()) {
+            plugin.getProviders().addPricesLoadCallback(() -> {
+                setSpawnerLevelCountsInternal(builder.spawnerLevelCounts);
+                this.spawnerWorthAdjustment.set(calculateSpawnerAdjustment(BlockValue::getWorth));
+                this.spawnerIslandLevelAdjustment.set(calculateSpawnerAdjustment(BlockValue::getLevel));
             });
         }
 
@@ -2864,6 +2878,9 @@ public class SIsland implements Island {
         islandWorth.set(BigDecimal.ZERO);
         islandLevel.set(BigDecimal.ZERO);
         spawnerWorthAdjustment.set(BigDecimal.ZERO);
+        spawnerIslandLevelAdjustment.set(BigDecimal.ZERO);
+        calculatedSpawnerLevelCounts.set(KeyMaps.createEmptyMap());
+        spawnerLevelCounts.set(KeyMaps.createEmptyMap());
 
         plugin.getGrid().getIslandsContainer().notifyChange(SortingTypes.BY_WORTH, this);
         plugin.getGrid().getIslandsContainer().notifyChange(SortingTypes.BY_LEVEL, this);
@@ -2936,6 +2953,109 @@ public class SIsland implements Island {
     }
 
     @Override
+    public BigDecimal getSpawnerIslandLevelAdjustment() {
+        return spawnerIslandLevelAdjustment.get();
+    }
+
+    @Override
+    public void setSpawnerIslandLevelAdjustment(BigDecimal spawnerIslandLevelAdjustment) {
+        Preconditions.checkNotNull(spawnerIslandLevelAdjustment, "spawnerIslandLevelAdjustment parameter cannot be null.");
+
+        BigDecimal oldAdjustment = this.spawnerIslandLevelAdjustment.getAndSet(spawnerIslandLevelAdjustment);
+
+        if (Objects.equals(oldAdjustment, spawnerIslandLevelAdjustment))
+            return;
+
+        plugin.getGrid().getIslandsContainer().notifyChange(SortingTypes.BY_LEVEL, this);
+        plugin.getGrid().sortIslands(SortingTypes.BY_LEVEL);
+    }
+
+    @Override
+    public Map<Key, SpawnerLevelCounts> getSpawnerLevelCounts() {
+        return spawnerLevelCounts.get();
+    }
+
+    @Override
+    @Nullable
+    public SpawnerLevelCounts getSpawnerLevelCounts(Key key) {
+        // Using getRaw, as get may fall back to the global spawner key.
+        return spawnerLevelCounts.get().getRaw(key, null);
+    }
+
+    private void setSpawnerLevelCountsInternal(Map<Key, SpawnerLevelCounts> calculatedLevelCounts) {
+        if (calculatedLevelCounts.isEmpty()) {
+            this.calculatedSpawnerLevelCounts.set(KeyMaps.createEmptyMap());
+            this.spawnerLevelCounts.set(KeyMaps.createEmptyMap());
+            return;
+        }
+
+        KeyMap<SpawnerLevelCounts> calculatedSpawnerLevelCounts = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+        calculatedSpawnerLevelCounts.putAll(calculatedLevelCounts);
+        this.calculatedSpawnerLevelCounts.set(KeyMaps.unmodifiableKeyMap(calculatedSpawnerLevelCounts));
+
+        // Store the level counts under the same keys that block counts are stored under,
+        // so they can be looked up by the keys of getBlockCountsAsBigInteger().
+        KeyMap<SpawnerLevelCounts> spawnerLevelCounts = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+        calculatedLevelCounts.forEach((spawnerKey, levelCounts) -> {
+            Key valueKey = plugin.getBlockValues().getBlockKey(spawnerKey);
+            mergeSpawnerLevelCounts(spawnerLevelCounts, valueKey, levelCounts);
+
+            Key globalKey = ((BaseKey<?>) valueKey).toGlobalKey();
+            if (!globalKey.equals(valueKey) && plugin.getBlockValues().getBlockValue(globalKey) != BlockValue.ZERO)
+                mergeSpawnerLevelCounts(spawnerLevelCounts, globalKey, levelCounts);
+        });
+
+        this.spawnerLevelCounts.set(KeyMaps.unmodifiableKeyMap(spawnerLevelCounts));
+    }
+
+    private static void mergeSpawnerLevelCounts(KeyMap<SpawnerLevelCounts> spawnerLevelCounts, Key key,
+                                                SpawnerLevelCounts levelCounts) {
+        SpawnerLevelCounts currentLevelCounts = spawnerLevelCounts.getRaw(key, null);
+        spawnerLevelCounts.put(key, currentLevelCounts == null ? levelCounts : currentLevelCounts.merge(levelCounts));
+    }
+
+    /**
+     * Calculate the total value deficit of all the leveled spawners of the island - the difference between
+     * their full configured value and their level-scaled one (see {@link SpawnerLevelValues}).
+     * <p>
+     * The adjustments are derived from the persisted level breakdowns instead of being persisted themselves,
+     * so they always match the current block values and the {@code spawners-worth-scaled-by-level} setting.
+     * </p>
+     *
+     * @param valueGetter Either {@link BlockValue#getWorth()} or {@link BlockValue#getLevel()}.
+     */
+    private BigDecimal calculateSpawnerAdjustment(Function<BlockValue, BigDecimal> valueGetter) {
+        if (!plugin.getSettings().isSpawnerWorthScaledByLevel())
+            return BigDecimal.ZERO;
+
+        BigDecimal adjustment = BigDecimal.ZERO;
+
+        for (Map.Entry<Key, SpawnerLevelCounts> entry : this.calculatedSpawnerLevelCounts.get().entrySet()) {
+            BigDecimal fullValue = valueGetter.apply(plugin.getBlockValues().getBlockValue(entry.getKey()));
+            if (fullValue.compareTo(BigDecimal.ZERO) == 0)
+                continue;
+
+            SpawnerLevelCounts levelCounts = entry.getValue();
+            for (Map.Entry<Integer, BigInteger> levelEntry : levelCounts.getLevelCounts().entrySet()) {
+                // How much of the spawners' full value is lost because they are not maxed out yet.
+                BigDecimal lostValueRate = SpawnerLevelValues.getValueFactor(levelEntry.getKey(), levelCounts.getMaxLevel())
+                        .subtract(BigDecimal.ONE).multiply(new BigDecimal(levelEntry.getValue()));
+                adjustment = adjustment.add(fullValue.multiply(lostValueRate));
+            }
+        }
+
+        return adjustment;
+    }
+
+    /**
+     * The island level as tracked by the block counts, with the spawner-level adjustment applied
+     * (the island-level counterpart of {@link #getRawWorth()}).
+     */
+    private BigDecimal getRawIslandLevel() {
+        return islandLevel.get().add(spawnerIslandLevelAdjustment.get());
+    }
+
+    @Override
     public BigDecimal getBonusLevel() {
         return bonusLevel.get();
     }
@@ -2960,7 +3080,7 @@ public class SIsland implements Island {
     @Override
     public BigDecimal getIslandLevel() {
         BigDecimal bonusLevel = this.bonusLevel.get();
-        BigDecimal islandLevel = this.islandLevel.get().add(bonusLevel);
+        BigDecimal islandLevel = getRawIslandLevel().add(bonusLevel);
 
         if (plugin.getSettings().isRoundedIslandLevels()) {
             islandLevel = islandLevel.setScale(0, plugin.getSettings().getIslandLevelRoundingMode());
@@ -2974,7 +3094,7 @@ public class SIsland implements Island {
 
     @Override
     public BigDecimal getRawLevel() {
-        BigDecimal islandLevel = this.islandLevel.get();
+        BigDecimal islandLevel = getRawIslandLevel();
 
         if (plugin.getSettings().isRoundedIslandLevels()) {
             islandLevel = islandLevel.setScale(0, plugin.getSettings().getIslandLevelRoundingMode());
@@ -4557,6 +4677,8 @@ public class SIsland implements Island {
             clearBlockCounts();
             result.getBlockCounts().forEach((blockKey, amount) -> handleBlockPlaceInternal(blockKey, amount, 0));
             setSpawnerWorthAdjustment(result.getSpawnerWorthAdjustment());
+            setSpawnerIslandLevelAdjustment(result.getSpawnerIslandLevelAdjustment());
+            setSpawnerLevelCountsInternal(result.getSpawnerLevelCounts());
 
             BigDecimal newIslandLevel = getIslandLevel();
             BigDecimal newIslandWorth = getWorth();
@@ -4567,6 +4689,7 @@ public class SIsland implements Island {
             plugin.getMenus().refreshCounts(this);
 
             saveBlockCounts(this.currentTotalBlockCounts.get(), oldWorth, oldLevel, true, isLastActiveTask);
+            IslandsDatabaseBridge.saveSpawnerLevelCounts(this, this.calculatedSpawnerLevelCounts.get());
             updateLastTime();
         });
     }

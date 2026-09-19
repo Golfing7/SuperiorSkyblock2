@@ -113,7 +113,8 @@ public class SpawnersProvider_DecypherCore implements SpawnersProvider_AutoDetec
         @EventHandler(priority = EventPriority.MONITOR)
         public void onWorthCalculated(IslandWorthCalculatedEvent event) {
             Island island = event.getIsland();
-            if (island.getSpawnerWorthAdjustment().compareTo(BigDecimal.ZERO) != 0) {
+            if (island.getSpawnerWorthAdjustment().compareTo(BigDecimal.ZERO) != 0 ||
+                    island.getSpawnerIslandLevelAdjustment().compareTo(BigDecimal.ZERO) != 0) {
                 islandsWithScaledSpawners.add(island);
             } else {
                 islandsWithScaledSpawners.remove(island);

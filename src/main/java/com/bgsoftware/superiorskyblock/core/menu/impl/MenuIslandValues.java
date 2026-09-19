@@ -38,8 +38,21 @@ import java.util.stream.Collectors;
 
 public class MenuIslandValues extends AbstractMenu<MenuIslandValues.View, IslandViewArgs> {
 
-    private MenuIslandValues(MenuParseResult<View> parseResult) {
+    private final String spawnerLevelsHeader;
+    private final String spawnerLevelsLine;
+
+    private MenuIslandValues(MenuParseResult<View> parseResult, String spawnerLevelsHeader, String spawnerLevelsLine) {
         super(MenuIdentifiers.MENU_ISLAND_VALUES, parseResult);
+        this.spawnerLevelsHeader = spawnerLevelsHeader;
+        this.spawnerLevelsLine = spawnerLevelsLine;
+    }
+
+    public String getSpawnerLevelsHeader() {
+        return spawnerLevelsHeader;
+    }
+
+    public String getSpawnerLevelsLine() {
+        return spawnerLevelsLine;
     }
 
     @Override
@@ -85,7 +98,10 @@ public class MenuIslandValues extends AbstractMenu<MenuIslandValues.View, Island
 
         plugin.getBlockValues().registerMenuValueBlocks(keysToUpdate);
 
-        return new MenuIslandValues(menuParseResult);
+        String spawnerLevelsHeader = cfg.getString("spawner-levels.header", "&6&l* &e&lSpawner Levels:");
+        String spawnerLevelsLine = cfg.getString("spawner-levels.line", "&7  - Level {0}/{4}: &fx{1} &7(${2})");
+
+        return new MenuIslandValues(menuParseResult, spawnerLevelsHeader, spawnerLevelsLine);
     }
 
     public static class View extends AbstractMenuView<View, IslandViewArgs> implements IIslandMenuView, IPlayerMenuView {
@@ -103,6 +119,11 @@ public class MenuIslandValues extends AbstractMenu<MenuIslandValues.View, Island
         @Override
         public Island getIsland() {
             return island;
+        }
+
+        @Override
+        public MenuIslandValues getMenu() {
+            return (MenuIslandValues) super.getMenu();
         }
 
         @Override

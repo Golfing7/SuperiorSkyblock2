@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.database.serialization;
 
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.world.Dimension;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
@@ -44,6 +45,26 @@ public class IslandsSerializer {
             entityCountsArray.add(blockCountObject);
         });
         return gson.toJson(entityCountsArray);
+    }
+
+    public static String serializeSpawnerLevelCounts(Map<Key, SpawnerLevelCounts> spawnerLevelCounts) {
+        JsonArray spawnerLevelCountsArray = new JsonArray();
+        spawnerLevelCounts.forEach((key, levelCounts) -> {
+            JsonArray levelsArray = new JsonArray();
+            levelCounts.getLevelCounts().forEach((level, amount) -> {
+                JsonObject levelObject = new JsonObject();
+                levelObject.addProperty("level", level);
+                levelObject.addProperty("amount", amount.toString());
+                levelsArray.add(levelObject);
+            });
+
+            JsonObject spawnerObject = new JsonObject();
+            spawnerObject.addProperty("id", key.toString());
+            spawnerObject.addProperty("max_level", levelCounts.getMaxLevel());
+            spawnerObject.add("levels", levelsArray);
+            spawnerLevelCountsArray.add(spawnerObject);
+        });
+        return gson.toJson(spawnerLevelCountsArray);
     }
 
     public static String serializeDirtyChunks(List<DirtyChunk> dirtyChunks) {

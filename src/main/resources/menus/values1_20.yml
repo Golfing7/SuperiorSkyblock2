@@ -16,6 +16,24 @@ pattern:
   - '% % S T U V W X %'
   - '& & & & & & & & &'
 
+# Level breakdown shown for leveled spawners, in place of the {5} placeholder in the lore of the
+# spawner items below. The lines are only added for spawners that have level data (requires a spawners
+# provider with leveled spawners, e.g. DecypherCore). Otherwise, the {5} line is removed from the lore.
+# Level data is refreshed when the island's worth is recalculated.
+spawner-levels:
+  # Line shown above the breakdown. Set to '' to hide it.
+  # {0} - The max level of the spawner.
+  header: '&6&l* &e&lSpawner Levels:'
+  # Line shown for each level the island has spawners at.
+  # {0} - The level.
+  # {1} - The amount of spawners at that level.
+  # {2} - The worth of those spawners (scaled by level if spawners-worth-scaled-by-level is enabled).
+  # {3} - The worth of those spawners, in fancy format.
+  # {4} - The max level of the spawner.
+  # {5} - The island level value of those spawners.
+  # {6} - The island level value of those spawners, in fancy format.
+  line: '&7  - Level {0}/{4}: &fx{1} &7(${2})'
+
 items:
   '&':
     type: BLACK_STAINED_GLASS_PANE
@@ -37,6 +55,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'B':
     block: SPAWNER:BLAZE
     type: PLAYER_HEAD
@@ -46,6 +65,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'C':
     block: SPAWNER:SPIDER
     type: PLAYER_HEAD
@@ -55,6 +75,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'D':
     block: SPAWNER:COW
     type: PLAYER_HEAD
@@ -64,6 +85,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'E':
     block: SPAWNER:ZOMBIE
     type: PLAYER_HEAD
@@ -73,6 +95,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'F':
     block: SPAWNER:SKELETON
     type: PLAYER_HEAD
@@ -82,6 +105,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'G':
     block: SPAWNER:CREEPER
     type: PLAYER_HEAD
@@ -91,6 +115,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'H':
     block: SPAWNER:ZOMBIFIED_PIGLIN
     type: PLAYER_HEAD
@@ -100,6 +125,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'I':
     block: SPAWNER:GHAST
     type: PLAYER_HEAD
@@ -109,6 +135,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'J':
     block: SPAWNER:SLIME
     type: PLAYER_HEAD
@@ -118,6 +145,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'K':
     block: SPAWNER:GUARDIAN
     type: PLAYER_HEAD
@@ -127,6 +155,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'L':
     block: SPAWNER:SQUID
     type: PLAYER_HEAD
@@ -136,6 +165,7 @@ items:
       - '&6&l* &e&lQuantity &fx{0}'
       - '&6&l* &e&lWorth: &f${1}'
       - '&6&l* &e&lLevel: &f${2}'
+      - '{5}'
   'M':
     block: HOPPER
     type: HOPPER

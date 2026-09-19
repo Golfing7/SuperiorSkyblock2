@@ -43,6 +43,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1963,19 +1964,61 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * <p>
      * This is a negative-or-zero value applied on top of the normal, per-block worth calculation,
      * used by spawner providers that scale a spawner's worth contribution by its upgrade level
-     * (see {@link com.bgsoftware.superiorskyblock.api.hooks.SpawnersProvider}). It is not persisted
-     * across restarts; it's restored by the next worth recalculation.
+     * (see {@link com.bgsoftware.superiorskyblock.api.hooks.SpawnersProvider}). It is derived from
+     * {@link #getSpawnerLevelCounts()}, which is persisted across restarts, and is refreshed by
+     * worth recalculations.
+     *
+     * @see #getSpawnerIslandLevelAdjustment()
      */
     default BigDecimal getSpawnerWorthAdjustment() {
         return BigDecimal.ZERO;
     }
 
     /**
-     * Set the spawner-level worth adjustment for the island. Not persisted across restarts.
+     * Set the spawner-level worth adjustment for the island.
      *
      * @param spawnerWorthAdjustment the new adjustment value, replacing the previous one.
      */
     default void setSpawnerWorthAdjustment(BigDecimal spawnerWorthAdjustment) {
+    }
+
+    /**
+     * Get the current spawner-level island-level adjustment for the island.
+     * <p>
+     * The island-level counterpart of {@link #getSpawnerWorthAdjustment()}: a negative-or-zero value
+     * applied on top of the normal, per-block island level calculation.
+     */
+    default BigDecimal getSpawnerIslandLevelAdjustment() {
+        return BigDecimal.ZERO;
+    }
+
+    /**
+     * Set the spawner-level island-level adjustment for the island.
+     *
+     * @param spawnerIslandLevelAdjustment the new adjustment value, replacing the previous one.
+     */
+    default void setSpawnerIslandLevelAdjustment(BigDecimal spawnerIslandLevelAdjustment) {
+    }
+
+    /**
+     * Get the spawner level breakdowns of the island, keyed by spawner block key.
+     * <p>
+     * Only populated when the spawners provider supports leveled spawners. It is persisted across
+     * restarts, and is only refreshed by worth recalculations.
+     */
+    default Map<Key, SpawnerLevelCounts> getSpawnerLevelCounts() {
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Get the spawner level breakdown of a specific spawner key (see {@link #getSpawnerLevelCounts()}).
+     *
+     * @param key The spawner block key.
+     * @return The level breakdown, or null if there is no level data for that key.
+     */
+    @Nullable
+    default SpawnerLevelCounts getSpawnerLevelCounts(Key key) {
+        return getSpawnerLevelCounts().get(key);
     }
 
     /**
@@ -2890,6 +2933,25 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
         Builder setEntityCount(Key entity, BigInteger count);
 
         KeyMap<BigInteger> getEntityCounts();
+
+        /**
+         * Set the spawner level breakdown of a single spawner key
+         * (see {@link Island#getSpawnerLevelCounts()}).
+         *
+         * @param spawnerKey  The spawner block key.
+         * @param levelCounts The level breakdown of that key.
+         */
+        default Builder setSpawnerLevelCounts(Key spawnerKey, SpawnerLevelCounts levelCounts) {
+            return this;
+        }
+
+        /**
+         * Get the spawner level breakdowns of the island, keyed by spawner block key
+         * (see {@link Island#getSpawnerLevelCounts()}).
+         */
+        default Map<Key, SpawnerLevelCounts> getSpawnerLevelCounts() {
+            return Collections.emptyMap();
+        }
 
         Builder setIslandHome(Location location, Dimension dimension);
 

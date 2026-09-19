@@ -64,6 +64,8 @@ public final class ChestLogsManager {
         chestLogs.addTransaction(transaction, senderUUID, false);
 
         IslandsDatabaseBridge.saveChestTransaction(island, transaction);
+
+        SuperiorSkyblockPlugin.getPlugin().getMenus().refreshChestLogs(island);
     }
 
 }

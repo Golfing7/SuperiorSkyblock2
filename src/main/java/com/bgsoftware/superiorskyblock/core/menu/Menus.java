@@ -5,6 +5,7 @@ import com.bgsoftware.superiorskyblock.api.menu.view.ViewArgs;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuBankLogs;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuBiomes;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuBorderColor;
+import com.bgsoftware.superiorskyblock.core.menu.impl.MenuChestLogs;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuConfirmBan;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuConfirmDisband;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuConfirmKick;
@@ -53,6 +54,7 @@ public class Menus {
     public static MenuBankLogs MENU_BANK_LOGS;
     public static MenuBiomes MENU_BIOMES;
     public static MenuBorderColor MENU_BORDER_COLOR;
+    public static MenuChestLogs MENU_CHEST_LOGS;
     public static MenuConfirmBan MENU_CONFIRM_BAN;
     public static MenuConfirmDisband MENU_CONFIRM_DISBAND;
     public static MenuConfirmKick MENU_CONFIRM_KICK;
@@ -100,6 +102,7 @@ public class Menus {
         MENU_BANK_LOGS = createMenu(MenuBankLogs.createInstance());
         MENU_BIOMES = createMenu(MenuBiomes.createInstance());
         MENU_BORDER_COLOR = createMenu(MenuBorderColor.createInstance());
+        MENU_CHEST_LOGS = createMenu(MenuChestLogs.createInstance());
         MENU_CONFIRM_BAN = createMenu(MenuConfirmBan.createInstance());
         MENU_CONFIRM_DISBAND = createMenu(MenuConfirmDisband.createInstance());
         MENU_CONFIRM_KICK = createMenu(MenuConfirmKick.createInstance());

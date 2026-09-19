@@ -38,6 +38,7 @@ import com.bgsoftware.superiorskyblock.core.menu.impl.MenuWarpManage;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuWarps;
 import com.bgsoftware.superiorskyblock.core.menu.impl.internal.MenuCustom;
 import com.bgsoftware.superiorskyblock.core.menu.view.args.EmptyViewArgs;
+import com.bgsoftware.superiorskyblock.core.menu.view.args.ChestLogsViewArgs;
 import com.bgsoftware.superiorskyblock.core.menu.view.args.IslandViewArgs;
 import com.bgsoftware.superiorskyblock.core.menu.view.args.PlayerViewArgs;
 import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
@@ -106,6 +107,20 @@ public class MenusProvider_Default implements MenusProvider {
     public void refreshBankLogs(Island island) {
         Preconditions.checkNotNull(island, "island parameter cannot be null.");
         Menus.MENU_BANK_LOGS.refreshViews(island);
+    }
+
+    @Override
+    public void openChestLogs(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, Island targetIsland,
+                              @Nullable SuperiorPlayer filteredPlayer) {
+        Preconditions.checkNotNull(targetPlayer, "targetPlayer parameter cannot be null.");
+        Preconditions.checkNotNull(targetIsland, "targetIsland parameter cannot be null.");
+        Menus.MENU_CHEST_LOGS.createView(targetPlayer, new ChestLogsViewArgs(targetIsland, filteredPlayer), previousMenu);
+    }
+
+    @Override
+    public void refreshChestLogs(Island island) {
+        Preconditions.checkNotNull(island, "island parameter cannot be null.");
+        Menus.MENU_CHEST_LOGS.refreshViews(island);
     }
 
     @Override

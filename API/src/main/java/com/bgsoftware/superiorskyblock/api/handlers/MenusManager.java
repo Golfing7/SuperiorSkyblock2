@@ -44,6 +44,30 @@ public interface MenusManager {
     void refreshBankLogs(Island island);
 
     /**
+     * Open the chest-logs menu.
+     * Used to display all logs of island chest transactions.
+     * <p>
+     * This method has a default, empty implementation so implementations that were written before
+     * this menu existed keep working.
+     *
+     * @param targetPlayer   The player to open the menu for.
+     * @param previousMenu   The previous menu that was opened, if exists.
+     * @param targetIsland   The island to display chest logs for.
+     * @param filteredPlayer The player to filter the logs by, if wanted.
+     */
+    default void openChestLogs(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, Island targetIsland,
+                               @Nullable SuperiorPlayer filteredPlayer) {
+    }
+
+    /**
+     * Refresh the chest-logs menu for a specific island.
+     *
+     * @param island The island to refresh the menus for.
+     */
+    default void refreshChestLogs(Island island) {
+    }
+
+    /**
      * Open the biomes-menu.
      * Used to display and choose biomes for the island.
      *

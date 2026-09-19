@@ -2,17 +2,20 @@ package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
 import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
+import com.bgsoftware.superiorskyblock.core.menu.SpawnerLevelsLore;
 import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.menu.button.AbstractMenuTemplateButton;
 import com.bgsoftware.superiorskyblock.core.menu.button.AbstractMenuViewButton;
 import com.bgsoftware.superiorskyblock.core.menu.button.MenuTemplateButtonImpl;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuIslandValues;
 import com.bgsoftware.superiorskyblock.core.values.BlockValue;
+import com.bgsoftware.superiorskyblock.island.SpawnerLevelValues;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -58,12 +61,19 @@ public class ValuesButton extends AbstractMenuViewButton<MenuIslandValues.View> 
         BigDecimal blockWorth = blockValue.getWorth();
         BigDecimal blockLevel = blockValue.getLevel();
 
+        SpawnerLevelCounts spawnerLevelCounts = island.getSpawnerLevelCounts(block);
+        BigDecimal totalWorth = SpawnerLevelValues.getTotalValue(blockWorth, amount.toBigInteger(), spawnerLevelCounts);
+        BigDecimal totalLevel = SpawnerLevelValues.getTotalValue(blockLevel, amount.toBigInteger(), spawnerLevelCounts);
+
         ItemStack itemStack = buttonItem.getBuilder()
                 .replaceAll("{0}", amount + "")
-                .replaceAll("{1}", Formatters.NUMBER_FORMATTER.format(blockWorth.multiply(amount)))
-                .replaceAll("{2}", Formatters.NUMBER_FORMATTER.format(blockLevel.multiply(amount)))
-                .replaceAll("{3}", Formatters.FANCY_NUMBER_FORMATTER.format(blockWorth.multiply(amount), inventoryViewer.getUserLocale()))
-                .replaceAll("{4}", Formatters.FANCY_NUMBER_FORMATTER.format(blockLevel.multiply(amount), inventoryViewer.getUserLocale()))
+                .replaceAll("{1}", Formatters.NUMBER_FORMATTER.format(totalWorth))
+                .replaceAll("{2}", Formatters.NUMBER_FORMATTER.format(totalLevel))
+                .replaceAll("{3}", Formatters.FANCY_NUMBER_FORMATTER.format(totalWorth, inventoryViewer.getUserLocale()))
+                .replaceAll("{4}", Formatters.FANCY_NUMBER_FORMATTER.format(totalLevel, inventoryViewer.getUserLocale()))
+                .replaceLoreWithLines("{5}", SpawnerLevelsLore.build(spawnerLevelCounts,
+                        menuView.getMenu().getSpawnerLevelsHeader(), menuView.getMenu().getSpawnerLevelsLine(),
+                        blockWorth, blockLevel, inventoryViewer))
                 .build(inventoryViewer);
 
         itemStack.setAmount(BigInteger.ONE.max(MAX_STACK.min(amount.toBigInteger())).intValue());

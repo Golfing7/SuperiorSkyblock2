@@ -9,6 +9,7 @@ import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PermissionNode;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
+import com.bgsoftware.superiorskyblock.api.island.SpawnerLevelCounts;
 import com.bgsoftware.superiorskyblock.api.island.bank.BankTransaction;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
@@ -86,6 +87,7 @@ public class IslandBuilderImpl implements Island.Builder {
     public final Set<DirtyChunk> dirtyChunks = new LinkedHashSet<>();
     public final KeyMap<BigInteger> blockCounts = KeyMaps.createArrayMap(KeyIndicator.MATERIAL);
     public final KeyMap<BigInteger> entityCounts = KeyMaps.createArrayMap(KeyIndicator.ENTITY_TYPE);
+    public final KeyMap<SpawnerLevelCounts> spawnerLevelCounts = KeyMaps.createArrayMap(KeyIndicator.MATERIAL);
     public final EnumerateMap<Dimension, WorldPosition> islandHomes = new EnumerateMap<>(Dimension.values());
     public final List<SuperiorPlayer> members = new LinkedList<>();
     public final List<SuperiorPlayer> bannedPlayers = new LinkedList<>();
@@ -347,6 +349,19 @@ public class IslandBuilderImpl implements Island.Builder {
     @Override
     public KeyMap<BigInteger> getEntityCounts() {
         return KeyMaps.unmodifiableKeyMap(this.entityCounts);
+    }
+
+    @Override
+    public Island.Builder setSpawnerLevelCounts(Key spawnerKey, SpawnerLevelCounts levelCounts) {
+        Preconditions.checkNotNull(spawnerKey, "spawnerKey parameter cannot be null.");
+        Preconditions.checkNotNull(levelCounts, "levelCounts parameter cannot be null.");
+        this.spawnerLevelCounts.put(spawnerKey, levelCounts);
+        return this;
+    }
+
+    @Override
+    public KeyMap<SpawnerLevelCounts> getSpawnerLevelCounts() {
+        return KeyMaps.unmodifiableKeyMap(this.spawnerLevelCounts);
     }
 
     @Override

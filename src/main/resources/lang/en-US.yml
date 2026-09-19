@@ -49,6 +49,8 @@ BORDER_PLAYER_COLOR_UPDATED: '&e&lBorder | &7Successfully changed your personal 
 BUILD_OUTSIDE_ISLAND: '&c&lError | &7You cannot build outside of your protection range.'
 CANNOT_SET_ROLE: '&c&lError | &7You cannot set the player''s role to {0}.'
 CHANGE_PERMISSION_FOR_HIGHER_ROLE: '&c&lError | &7You can only change permissions to lower island role than yours.'
+CHEST_LOGS_ITEM_ADDED: '&aAdded'
+CHEST_LOGS_ITEM_REMOVED: '&cRemoved'
 CHANGED_BANK_LIMIT: '&e&lUpgrades | &7Successfully updated the bank limit of {0}''s island.'
 CHANGED_BANK_LIMIT_ALL: '&e&lUpgrades | &7Successfully updated the bank limit of all the islands.'
 CHANGED_BANK_LIMIT_NAME: '&e&lUpgrades | &7Successfully updated the bank limit of {0}.'

@@ -49,6 +49,30 @@ public interface MenusProvider {
     void openBiomes(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, Island targetIsland);
 
     /**
+     * Open the chest-logs menu.
+     * Used to display all logs of island chest transactions.
+     * <p>
+     * This method has a default, empty implementation so custom providers that were written before
+     * this menu existed keep working; the built-in provider overrides it.
+     *
+     * @param targetPlayer   The player to open the menu for.
+     * @param previousMenu   The previous menu that was opened, if exists.
+     * @param targetIsland   The island to display chest logs for.
+     * @param filteredPlayer The player to filter the logs by, if wanted.
+     */
+    default void openChestLogs(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, Island targetIsland,
+                               @Nullable SuperiorPlayer filteredPlayer) {
+    }
+
+    /**
+     * Refresh the chest-logs menu for a specific island.
+     *
+     * @param island The island to refresh the menus for.
+     */
+    default void refreshChestLogs(Island island) {
+    }
+
+    /**
      * Open the border-color menu.
      * Used to change the color of the world border for a player.
      *

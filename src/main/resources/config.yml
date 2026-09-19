@@ -491,9 +491,11 @@ transfer-confirm: true
 spawners-provider: 'AUTO'
 
 # If the spawners provider supports leveled spawners (currently only DecypherCore), scale a spawner's
-# contribution to island worth by (level / max-level) instead of always counting it at full worth.
+# contribution to island worth and island level by (level / max-level) instead of always counting it at
+# full value.
 # Example: a spawner worth $100,000 with 5 max levels contributes $20,000 at level 1, $60,000 at level 3, etc.
-# Does not affect block limits, island level, or the block-counts GUI - worth only.
+# Does not affect block limits.
+# The counts and values GUIs show the scaled values, along with a breakdown of the spawners at each level.
 spawners-worth-scaled-by-level: false
 
 # How often (in seconds) to passively re-check islands that have leveled spawners, to catch in-place

@@ -267,6 +267,10 @@ public class DataManager extends Manager {
                 IslandsDeserializer.deserializeEntityCounts(builder, entityCounts);
             });
 
+            databaseResult.getString("spawner_level_counts").ifPresent(spawnerLevelCounts -> {
+                IslandsDeserializer.deserializeSpawnerLevelCounts(builder, spawnerLevelCounts);
+            });
+
             checkCorruptedIslandRecord(islandRecord);
 
             plugin.getGrid().getIslandsContainer().addIsland(builder.build());
