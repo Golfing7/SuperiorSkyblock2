@@ -11,7 +11,7 @@ previous-menu: true
 pattern:
   - '$ $ $ $ $ $ $ $ $'
   - '# # @ # % # ^ # #'
-  - '# # # ! # + # # #'
+  - '# # # ! C + # # #'
   - '# # * # ~ # & # #'
   - '$ $ $ $ $ $ $ $ $'
 
@@ -1212,6 +1212,224 @@ upgrades:
           pitch: 0.2
       no-next-level:
         type: MINECART
+        name: '&c&lMAX LEVEL'
+        lore:
+          - '&7You have reached the maximum'
+          - '&7level of the minecarts limit!'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+  chest-upgrade :
+    item: 'C'
+    '1':
+      has-next-level:
+        type: CHEST
+        name: '&6&lChest Size &a(Available)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e2'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f2 Rows'
+          - '&6Price: &f$50,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ORB_PICKUP
+          volume: 0.2
+          pitch: 0.2
+      no-next-level:
+        type: CHEST
+        name: '&6&lChest Size &c(Unavailable)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e2'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f2 Rows'
+          - '&6Price: &f$50,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+    '2':
+      has-next-level:
+        type: CHEST
+        name: '&6&lChest Size &a(Available)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e3'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f3 Rows'
+          - '&6Price: &f$100,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ORB_PICKUP
+          volume: 0.2
+          pitch: 0.2
+      no-next-level:
+        type: CHEST
+        name: '&6&lChest Size &c(Unavailable)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e3'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f3 Rows'
+          - '&6Price: &f$100,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+    '3':
+      has-next-level:
+        type: CHEST
+        name: '&6&lChest Size &a(Available)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e4'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f4 Rows'
+          - '&6Price: &f$200,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ORB_PICKUP
+          volume: 0.2
+          pitch: 0.2
+      no-next-level:
+        type: CHEST
+        name: '&6&lChest Size &c(Unavailable)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e4'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f4 Rows'
+          - '&6Price: &f$200,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+    '4':
+      has-next-level:
+        type: CHEST
+        name: '&6&lChest Size &a(Available)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e5'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f5 Rows'
+          - '&6Price: &f$400,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ORB_PICKUP
+          volume: 0.2
+          pitch: 0.2
+      no-next-level:
+        type: CHEST
+        name: '&6&lChest Size &c(Unavailable)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e5'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f5 Rows'
+          - '&6Price: &f$400,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+    '5':
+      has-next-level:
+        type: CHEST
+        name: '&6&lChest Size &a(Available)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e5'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f6 Rows'
+          - '&6Price: &f$800,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ORB_PICKUP
+          volume: 0.2
+          pitch: 0.2
+      no-next-level:
+        type: CHEST
+        name: '&6&lChest Size &c(Unavailable)'
+        lore:
+          - '&7'
+          - '&dNext Level: &e5'
+          - '&7'
+          - '&7Purchasing the chest upgrade'
+          - '&7will increase your island''s'
+          - '&7chest size.'
+          - '&7'
+          - '&6Amount: &f6 Rows'
+          - '&6Price: &f$800,000'
+          - '&7'
+          - '&aClick to purchase upgrade.'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+    '6':
+      has-next-level:
+        type: CHEST
+        name: '&c&lMAX LEVEL'
+        lore:
+          - '&7You have reached the maximum'
+          - '&7level of the minecarts limit!'
+        sound:
+          type: ANVIL_LAND
+          volume: 0.2
+          pitch: 0.2
+      no-next-level:
+        type: CHEST
         name: '&c&lMAX LEVEL'
         lore:
           - '&7You have reached the maximum'
