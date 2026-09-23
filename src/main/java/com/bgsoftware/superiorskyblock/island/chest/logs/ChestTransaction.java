@@ -21,18 +21,20 @@ public class ChestTransaction {
     private final int slot;
     private final ChestAction action;
     private final Material itemType;
+    private final String itemName;
     private final int amount;
     private final int position;
     private final long time;
     private final String date;
 
     public ChestTransaction(UUID player, int chestIndex, int slot, ChestAction action, Material itemType,
-                             int amount, int position, long time) {
+                            String itemName, int amount, int position, long time) {
         this.player = player;
         this.chestIndex = chestIndex;
         this.slot = slot;
         this.action = action;
         this.itemType = itemType;
+        this.itemName = itemName;
         this.amount = amount;
         this.position = position;
         this.time = time;
@@ -64,6 +66,7 @@ public class ChestTransaction {
                 resultSet.getInt("slot").orElse(-1),
                 action.get(),
                 itemType,
+                resultSet.getString("item_name").orElse(""),
                 resultSet.getInt("amount").orElse(0),
                 resultSet.getInt("position").orElse(1),
                 resultSet.getLong("time").orElse(System.currentTimeMillis())
@@ -89,6 +92,10 @@ public class ChestTransaction {
 
     public Material getItemType() {
         return itemType;
+    }
+
+    public String getItemName() {
+        return itemName;
     }
 
     public int getAmount() {

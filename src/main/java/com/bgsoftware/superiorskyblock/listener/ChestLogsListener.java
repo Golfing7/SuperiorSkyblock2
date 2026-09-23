@@ -19,6 +19,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -61,24 +62,24 @@ public class ChestLogsListener implements Listener {
         UUID playerUUID = humanEntity.getUniqueId();
         int chestIndex = islandChest.getIndex();
 
-        Map<Material, Integer> before = countByType(topInventory.getContents());
+        Map<ItemStack, Integer> before = countByType(topInventory.getContents());
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-            Map<Material, Integer> after = countByType(topInventory.getContents());
+            Map<ItemStack, Integer> after = countByType(topInventory.getContents());
             logDifferences(island, playerUUID, chestIndex, before, after);
         });
     }
 
     private void logDifferences(Island island, UUID playerUUID, int chestIndex,
-                                 Map<Material, Integer> before, Map<Material, Integer> after) {
-        for (Map.Entry<Material, Integer> entry : after.entrySet()) {
+                                 Map<ItemStack, Integer> before, Map<ItemStack, Integer> after) {
+        for (Map.Entry<ItemStack, Integer> entry : after.entrySet()) {
             int diff = entry.getValue() - before.getOrDefault(entry.getKey(), 0);
             if (diff > 0) {
                 ChestLogsManager.logTransaction(island, playerUUID, chestIndex, -1, ChestAction.ADDED, entry.getKey(), diff);
             }
         }
 
-        for (Map.Entry<Material, Integer> entry : before.entrySet()) {
+        for (Map.Entry<ItemStack, Integer> entry : before.entrySet()) {
             int diff = entry.getValue() - after.getOrDefault(entry.getKey(), 0);
             if (diff > 0) {
                 ChestLogsManager.logTransaction(island, playerUUID, chestIndex, -1, ChestAction.REMOVED, entry.getKey(), diff);
@@ -86,13 +87,15 @@ public class ChestLogsListener implements Listener {
         }
     }
 
-    private static Map<Material, Integer> countByType(ItemStack[] contents) {
-        Map<Material, Integer> counts = new EnumMap<>(Material.class);
+    private static Map<ItemStack, Integer> countByType(ItemStack[] contents) {
+        Map<ItemStack, Integer> counts = new HashMap<>();
         for (ItemStack itemStack : contents) {
             if (itemStack == null || itemStack.getType() == Material.AIR)
                 continue;
 
-            counts.merge(itemStack.getType(), itemStack.getAmount(), Integer::sum);
+            ItemStack itemKey = itemStack.clone();
+            itemKey.setAmount(1);
+            counts.merge(itemKey, itemStack.getAmount(), Integer::sum);
         }
         return counts;
     }

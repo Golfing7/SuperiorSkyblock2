@@ -35,6 +35,7 @@ public class ChestLogsPagedObjectButton extends AbstractPagedMenuButton<MenuChes
     @Override
     public ItemStack modifyViewItem(ItemStack buttonItem) {
         SuperiorPlayer inventoryViewer = menuView.getInventoryViewer();
+        String typeFormat = Formatters.CAPITALIZED_FORMATTER.format(pagedObject.getItemType().name());
         return new ItemBuilder(buttonItem)
                 .withType(pagedObject.getItemType())
                 .withAmount(Math.min(MAX_STACK, pagedObject.getAmount()))
@@ -44,8 +45,9 @@ public class ChestLogsPagedObjectButton extends AbstractPagedMenuButton<MenuChes
                         Message.CHEST_LOGS_ITEM_ADDED : Message.CHEST_LOGS_ITEM_REMOVED).getMessage(inventoryViewer.getUserLocale()))
                 .replaceAll("{3}", pagedObject.getDate())
                 .replaceAll("{4}", pagedObject.getAmount() + "")
-                .replaceAll("{5}", Formatters.CAPITALIZED_FORMATTER.format(pagedObject.getItemType().name()))
+                .replaceAll("{5}", typeFormat)
                 .replaceAll("{6}", (pagedObject.getChestIndex() + 1) + "")
+                .replaceAll("{7}", !pagedObject.getItemName().isEmpty() ? pagedObject.getItemName() : typeFormat)
                 .build(inventoryViewer);
     }
 

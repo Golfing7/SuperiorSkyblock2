@@ -4,6 +4,8 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.core.database.bridge.IslandsDatabaseBridge;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.Map;
@@ -51,13 +53,15 @@ public final class ChestLogsManager {
      * Logs a brand-new chest transaction, saving it to the database if chest-logs are enabled.
      */
     public static void logTransaction(Island island, UUID player, int chestIndex, int slot, ChestAction action,
-                                       Material itemType, int amount) {
+                                      ItemStack item, int amount) {
         if (!SuperiorSkyblockPlugin.getPlugin().getSettings().getIslandChests().isChestLogs() || amount <= 0)
             return;
 
         IChestLogs chestLogs = getOrCreate(island);
         int position = chestLogs.getLastTransactionPosition() + 1;
-        ChestTransaction transaction = new ChestTransaction(player, chestIndex, slot, action, itemType, amount,
+        ItemMeta itemMeta = item.getItemMeta();
+        String displayName = itemMeta != null && itemMeta.hasDisplayName() ? itemMeta.getDisplayName() : "";
+        ChestTransaction transaction = new ChestTransaction(player, chestIndex, slot, action, item.getType(), displayName, amount,
                 position, System.currentTimeMillis());
 
         UUID senderUUID = player == null ? CONSOLE_UUID : player;

@@ -34,7 +34,7 @@ items:
       - '&7Player: {1}'
       - '&7Action: {2}'
       - '&7Time: {3}'
-      - '&7Item: &f{5} &7x{4}'
+      - '&7Item: &f{7} &7x{4}'
       - '&7Chest: &f#{6}'
       - ''
       - '&7Click to filter transactions by this player.'

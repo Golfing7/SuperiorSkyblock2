@@ -729,6 +729,7 @@ public class IslandsDatabaseBridge {
                         pool.obtain().withNameAndValue("slot", chestTransaction.getSlot()),
                         pool.obtain().withNameAndValue("action", chestTransaction.getAction().name()),
                         pool.obtain().withNameAndValue("item_type", chestTransaction.getItemType().name()),
+                        pool.obtain().withNameAndValue("item_name", chestTransaction.getItemName() == null ? "" : chestTransaction.getItemName()),
                         pool.obtain().withNameAndValue("amount", chestTransaction.getAmount()),
                         pool.obtain().withNameAndValue("position", chestTransaction.getPosition()),
                         pool.obtain().withNameAndValue("time", chestTransaction.getTime())

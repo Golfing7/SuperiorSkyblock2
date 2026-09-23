@@ -7,6 +7,7 @@ import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v1.Datab
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v2.DatabaseUpgrade_V2;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v3.DatabaseUpgrade_V3;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v4.DatabaseUpgrade_V4;
+import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v5.DatabaseUpgrade_V5;
 import com.bgsoftware.superiorskyblock.core.database.sql.DBSession;
 import com.bgsoftware.superiorskyblock.core.mutable.MutableInt;
 
@@ -19,7 +20,8 @@ public class SQLDatabase {
             DatabaseUpgrade_V1.INSTANCE,
             DatabaseUpgrade_V2.INSTANCE,
             DatabaseUpgrade_V3.INSTANCE,
-            DatabaseUpgrade_V4.INSTANCE
+            DatabaseUpgrade_V4.INSTANCE,
+            DatabaseUpgrade_V5.INSTANCE
     };
 
     private SQLDatabase() {
@@ -298,6 +300,7 @@ public class SQLDatabase {
                 new Column("slot", "INTEGER"),
                 new Column("action", "TEXT"),
                 new Column("item_type", "TEXT"),
+                new Column("item_name", "TEXT"),
                 new Column("amount", "INTEGER"),
                 new Column("position", "INTEGER"),
                 new Column("time", "BIGINT")
