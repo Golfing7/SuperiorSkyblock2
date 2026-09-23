@@ -54,6 +54,13 @@ public class ValuesButton extends AbstractMenuViewButton<MenuIslandValues.View> 
 
         Key block = getTemplate().block;
 
+        // This is a hacky attempt to get placeholders parsing on non block value related items.
+        if (block == null) {
+            return buttonItem.getBuilder()
+                    .replaceAll("{6}", Formatters.FANCY_NUMBER_FORMATTER.format(island.getIslandBank().getBalance(), inventoryViewer.getUserLocale()))
+                    .build(inventoryViewer);
+        }
+
         BigDecimal amount = new BigDecimal(block.getGlobalKey().contains("SPAWNER") ?
                 island.getExactBlockCountAsBigInteger(block) : island.getBlockCountAsBigInteger(block));
 
@@ -74,6 +81,7 @@ public class ValuesButton extends AbstractMenuViewButton<MenuIslandValues.View> 
                 .replaceLoreWithLines("{5}", SpawnerLevelsLore.build(spawnerLevelCounts,
                         menuView.getMenu().getSpawnerLevelsHeader(), menuView.getMenu().getSpawnerLevelsLine(),
                         blockWorth, blockLevel, inventoryViewer))
+                .replaceAll("{6}", Formatters.FANCY_NUMBER_FORMATTER.format(island.getIslandBank().getBalance(), inventoryViewer.getUserLocale()))
                 .build(inventoryViewer);
 
         itemStack.setAmount(BigInteger.ONE.max(MAX_STACK.min(amount.toBigInteger())).intValue());

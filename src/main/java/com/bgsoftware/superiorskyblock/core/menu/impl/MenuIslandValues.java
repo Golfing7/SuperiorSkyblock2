@@ -86,8 +86,11 @@ public class MenuIslandValues extends AbstractMenu<MenuIslandValues.View, Island
 
                 String block = itemsSection.getString("block");
 
-                if (block == null)
+                // If no block is present, we still need to parse placeholders.
+                if (block == null) {
+                    patternBuilder.mapButtons(menuPatternSlots.getSlots(itemsSectionName), new ValuesButton.Builder(null));
                     continue;
+                }
 
                 Key blockKey = Keys.ofMaterialAndData(block);
                 keysToUpdate.add(blockKey);
